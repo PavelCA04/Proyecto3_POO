@@ -1,0 +1,26 @@
+{
+  "playerTank": {
+    "movementSpeed": 5,
+    "fireRate": 1000
+  },
+  "enemyTanks": {
+    "simpleTank": {
+      "movementSpeed": 3,
+      "fireRate": 1500
+    },
+    "fastTank": {
+      "movementSpeed": 8,
+      "fireRate": 800
+    },
+    "strongTank": {
+      "movementSpeed": 4,
+      "fireRate": 2000
+    },
+    "resistantTank": {
+      "movementSpeed": 2,
+      "fireRate": 1200
+    },
+    "appearanceInterval": 20000
+  }
+}
+
