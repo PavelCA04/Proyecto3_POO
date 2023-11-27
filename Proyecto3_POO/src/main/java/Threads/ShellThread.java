@@ -14,6 +14,8 @@ public class ShellThread extends Thread{
     ///////////////
     
     Shell shell;
+    int posX;
+    int posY;
     GameController refController;
     boolean isRunning = true;
  
@@ -24,7 +26,7 @@ public class ShellThread extends Thread{
     // Contructors //
     /////////////////
     
-    public ShellThread(Shell shell, GameController refController){
+    public ShellThread(int posX, int posY, Shell shell, GameController refController){
         this.shell = shell;
         this.refController = refController;
     }

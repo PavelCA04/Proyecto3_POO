@@ -16,6 +16,7 @@ import Prototypes.Tank;
 import Prototypes.TankTank;
 import Threads.EnemiesThread;
 import Threads.PlayerThread;
+import Threads.ShellThread;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
@@ -54,8 +55,8 @@ public class GameController implements KeyListener{
     private PlayerThread playerThread; 
     private PlayerTank playerTank; 
     
-    private ArrayList<EnemiesThread> enemThreadArray; // thread array de defenzas
-    private ArrayList<Tank> enemyTankArray; // array de defenzas 
+    private ArrayList<EnemiesThread> enemThreadArray; // thread array de enemigos
+    private ArrayList<ShellThread> shellThreads; // array de disparos
     
     private JPanel[][] boardCells = new JPanel[13][17]; // matriz
     private int level;    
@@ -72,6 +73,7 @@ public class GameController implements KeyListener{
         
         playerThread = new PlayerThread();
         enemThreadArray = new ArrayList<EnemiesThread>();
+        shellThreads = new ArrayList<ShellThread>();
         
         keyMappings.put(KeyEvent.VK_W, new MoveUpCommand(gameModel));
         keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand(gameModel));
@@ -98,9 +100,10 @@ public class GameController implements KeyListener{
         board();
         gameView.pnlStats.setBackground(Color.GRAY);
     }
+    
     // inicia el binding con la vista
     private void _init_ (){
-        gameView.setTitle("Tank 1990");
+        gameView.setTitle("Battle City");
         
         gameView.addKeyListener(this);
         gameView.setFocusable(true);
@@ -121,13 +124,13 @@ public class GameController implements KeyListener{
 
     private void board(){  // Genera el tablero
         gameView.pnlGame.setLayout(new GridLayout(Height, Width)); // Crear grid
-        //gameView.pnlGame.setBackground(Color.BLACK);
+        gameView.pnlGame.setBackground(Color.BLACK);
         
         for(int i = 0; i < 13; i++){ // Matriz 17x13
             for(int j = 0; j<17; j++){
                 JPanel cell = new JPanel();
                 cell.setLayout(new GridLayout(1,1));
-                //cell.setBackground(Color.BLACK);
+                cell.setBackground(Color.BLACK);
                 cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                 
                 boardCells[i][j] = cell;
@@ -192,7 +195,6 @@ public class GameController implements KeyListener{
 
         // Verifica si hay componentes y si el primer componente es un JLabel
         if (components.length > 0 && components[0] instanceof JLabel) {
-            System.out.println("aqui");
             boardCells[posX][posY].remove(lbl);
             gameView.pnlGame.revalidate();
             gameView.pnlGame.repaint();
@@ -220,6 +222,19 @@ public class GameController implements KeyListener{
         drawPlayerTank(posX, posY, icon); // Draws the player on board
     }
     
+    public void fireShell(){
+        int posX = playerTank.getPosX();
+        int posY = playerTank.getPosY();
+        
+        ImageIcon image = new ImageIcon("Images\\bullet.png");
+        JLabel lblShell = new JLabel(image);
+        lblShell.setOpaque(true);
+        
+        boardCells[posX][posY].add(lblShell);
+        
+        //ShellThread st = new ShellThread(posX, posY, gameView, boardCells, lblShell);
+    }
+    
     public void moveEnemyTank(){
         
     }
@@ -230,6 +245,11 @@ public class GameController implements KeyListener{
     public void enemyEvents(JLabel lbl){
         
     }
+    
+    
+    
+    
+    
     
     @Override
     public void keyPressed(KeyEvent e){

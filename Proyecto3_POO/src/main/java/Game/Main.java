@@ -25,7 +25,7 @@ public class Main {
                
         GameModel model = new GameModel();
         GameWindow view = new GameWindow();
-        GameController controller = new GameController(model, view);
+        GameController controller = new GameController(model, view, 1);
         
         view.addWindowListener(new WindowAdapter(){ //detecta el evento de cierre de la ventana 
             public void windowClosing(WindowEvent e){
