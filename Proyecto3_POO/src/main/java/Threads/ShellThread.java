@@ -2,19 +2,18 @@
 package Threads;
 
 import Game.GameController;
-import Prototypes.Enemy;
+import Prototypes.Shell;
+import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-
-
-public class EnemiesThread extends Thread{
+public class ShellThread extends Thread{
     ///////////////
     // Atributes //
     ///////////////
-
-    Enemy enemy;
+    
+    Shell shell;
     GameController refController;
     boolean isRunning = true;
  
@@ -25,7 +24,9 @@ public class EnemiesThread extends Thread{
     // Contructors //
     /////////////////
     
-    public EnemiesThread(){
+    public ShellThread(Shell shell, GameController refController){
+        this.shell = shell;
+        this.refController = refController;
     }
     
     
@@ -38,11 +39,11 @@ public class EnemiesThread extends Thread{
     public void run(){
         while (isRunning){
             try{
-                refController.enemyEvents(enemy.getLabel());
-                sleep(2000);
+                refController.moveShell(shell.getLabel());
+                sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(EnemiesThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
+    }    
 }

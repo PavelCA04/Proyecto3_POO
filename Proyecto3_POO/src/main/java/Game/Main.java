@@ -23,7 +23,7 @@ public class Main {
     
     public static void main(String[] args) {
                
-        GameModel model = new GameModel(1, 1);
+        GameModel model = new GameModel();
         GameWindow view = new GameWindow();
         GameController controller = new GameController(model, view);
         

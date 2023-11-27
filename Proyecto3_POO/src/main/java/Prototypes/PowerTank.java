@@ -4,6 +4,7 @@ package Prototypes;
 
 public class PowerTank implements Tank{
     private String id;
+    private int posX, posY;
     private int hp;
     private int tankVel;
     private int shellVel;
@@ -13,9 +14,11 @@ public class PowerTank implements Tank{
     
     public PowerTank(){
     }
-    public PowerTank(String id) {
+    public PowerTank(String id, int posX, int posY) {
         this();
         this.id = id;
+        this.posX = posX;
+        this.posY = posY;          
         this.hp = 1;
         this.tankVel = 5;
         this.shellVel = 10;
@@ -25,7 +28,7 @@ public class PowerTank implements Tank{
     
     @Override
     public Tank clone() {
-        return new FastTank(this.id);
+        return new FastTank(this.id,this.posX, this.posY);
     }
     @Override
     public Tank deepClone() {

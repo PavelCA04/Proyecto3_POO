@@ -21,7 +21,7 @@ public class MoveDownCommand implements ICommand{
     public void execute(GameController gameCtrl) {
         // logic
         System.out.println("Down");
-        gameCtrl.movePlayerTank(0, 5, image);
+        gameCtrl.movePlayerTank(1, 0, image);
 
     }
     

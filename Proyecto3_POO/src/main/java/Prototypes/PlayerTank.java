@@ -1,14 +1,17 @@
 
 package Prototypes;
 
+import javax.swing.JLabel;
+
 
 public class PlayerTank implements Tank{
     
     private String id;
+    private int posX, posY;
     private int hp;
     private int tankVel;
-    private int shellVel;
     private int score;
+    JLabel label;
     
     
     
@@ -17,10 +20,9 @@ public class PlayerTank implements Tank{
     }
     public PlayerTank(String id) {
         this();
-        this.id = id;
+        this.id = id;        
         this.hp = 3;
         this.tankVel = 5;
-        this.shellVel = 10;
     }
     
     
@@ -54,6 +56,14 @@ public class PlayerTank implements Tank{
         return id;
     }
 
+    public int getPosX() {
+        return posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
     public int getHp() {
         return hp;
     }
@@ -62,16 +72,24 @@ public class PlayerTank implements Tank{
         return tankVel;
     }
 
-    public int getShellVel() {
-        return shellVel;
-    }
-
     public int getScore() {
         return score;
+    }
+
+    public JLabel getLabel() {
+        return label;
     }
     
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
     }
 
     public void setHp(int hp) {
@@ -82,11 +100,11 @@ public class PlayerTank implements Tank{
         this.tankVel = tankVel;
     }
 
-    public void setShellVel(int shellVel) {
-        this.shellVel = shellVel;
-    }
-
     public void setScore(int score) {
         this.score = score;
     }   
+
+    public void setLabel(JLabel lbl) {
+        this.label = lbl;
+    }
 }

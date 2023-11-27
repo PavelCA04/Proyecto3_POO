@@ -21,7 +21,7 @@ public class MoveLeftCommand implements ICommand{
     public void execute(GameController gameCtrl) {
         // logic
         System.out.println("Left");
-        gameCtrl.movePlayerTank(-5, 0, image);
+        gameCtrl.movePlayerTank(0, -1, image);
 
     }
     

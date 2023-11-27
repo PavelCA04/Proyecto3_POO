@@ -17,14 +17,19 @@ import Prototypes.TankTank;
 import Threads.EnemiesThread;
 import Threads.PlayerThread;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
 
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -41,10 +46,10 @@ public class GameController implements KeyListener{
     private GameWindow gameView;
     private final Map<Integer, ICommand> keyMappings;
     
-    private int playerPosX = 0;
-    private int playerPosY = 0;
-    
-    private JLabel playerTankLabel;
+    private static final int Sprite_Size = 64;
+    private static final int Width = 15;
+    private static final int Height = 13;
+    private JLabel lblPlayerTank;
     
     private PlayerThread playerThread; 
     private PlayerTank playerTank; 
@@ -52,6 +57,7 @@ public class GameController implements KeyListener{
     private ArrayList<EnemiesThread> enemThreadArray; // thread array de defenzas
     private ArrayList<Tank> enemyTankArray; // array de defenzas 
     
+    private JPanel[][] boardCells = new JPanel[13][17]; // matriz
     private int level;    
     
     
@@ -64,6 +70,9 @@ public class GameController implements KeyListener{
         this.gameView = gameView;
         this.keyMappings = new HashMap<>();
         
+        playerThread = new PlayerThread();
+        enemThreadArray = new ArrayList<EnemiesThread>();
+        
         keyMappings.put(KeyEvent.VK_W, new MoveUpCommand(gameModel));
         keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand(gameModel));
         keyMappings.put(KeyEvent.VK_S, new MoveDownCommand(gameModel));
@@ -72,9 +81,11 @@ public class GameController implements KeyListener{
         keyMappings.put(KeyEvent.VK_ESCAPE, new PauseCommand(gameModel));
         
         _init_();
+        configureGamePanel();
+    
         
         
-        spawnPlayerTank(new PlayerTank());
+        //drawPlayerTank(new PlayerTank());
     }    
     
     
@@ -83,11 +94,12 @@ public class GameController implements KeyListener{
     /////////////
     // Methods //
     /////////////  
-
+    private void configureGamePanel(){
+        board();
+        gameView.pnlStats.setBackground(Color.GRAY);
+    }
     // inicia el binding con la vista
     private void _init_ (){
-        gameView.pnlGame.setBackground(Color.BLACK);
-        gameView.pnlStats.setBackground(Color.GRAY);
         gameView.setTitle("Tank 1990");
         
         gameView.addKeyListener(this);
@@ -95,46 +107,127 @@ public class GameController implements KeyListener{
         gameView.setFocusTraversalKeysEnabled(false);
         
         
-        PlayerTank playerTank = new PlayerTank("PlayerTank");
-        SimpleTank simpleTank = new SimpleTank("SimpleTank");
-        FastTank fastTank = new FastTank("FastTank");
-        PowerTank powerTank = new PowerTank("PowerTank");
-        TankTank tankTank = new TankTank("TankTank");
+        playerTank = new PlayerTank("PlayerTank");
+        //SimpleTank simpleTank = new SimpleTank("SimpleTank");
+        //FastTank fastTank = new FastTank("FastTank");
+        //PowerTank powerTank = new PowerTank("PowerTank");
+        //TankTank tankTank = new TankTank("TankTank");
         PrototypeFactory.addPrototype(playerTank.getId(), playerTank);
-        PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
-        PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
-        PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
-        PrototypeFactory.addPrototype(tankTank.getId(), tankTank);        
+        //PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
+        //PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
+        //PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
+        //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);        
     }
 
-    public void spawnPlayerTank(PlayerTank pTank){
-        ImageIcon image = new ImageIcon("Images\\playerUp.png"); 
-        playerTankLabel = new JLabel(image);
-        playerTankLabel.setSize(64, 64);
-        playerTankLabel.setBackground(Color.red);
-        playerTankLabel.setForeground(Color.red);
-        playerTankLabel.setLocation(playerPosX, playerPosY);
+    private void board(){  // Genera el tablero
+        gameView.pnlGame.setLayout(new GridLayout(Height, Width)); // Crear grid
+        //gameView.pnlGame.setBackground(Color.BLACK);
         
-        gameView.pnlGame.add(playerTankLabel);
+        for(int i = 0; i < 13; i++){ // Matriz 17x13
+            for(int j = 0; j<17; j++){
+                JPanel cell = new JPanel();
+                cell.setLayout(new GridLayout(1,1));
+                //cell.setBackground(Color.BLACK);
+                cell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                
+                boardCells[i][j] = cell;
+                gameView.pnlGame.add(cell);
+            }
+        }
+        ImageIcon image = new ImageIcon("Images\\playerUp.png");
+        drawPlayerTank(10, 8, image);
+    }
+     
+    public void drawPlayerTank(int posX, int posY, ImageIcon icon) {
+        // Elimina el JLabel anterior si existe
+        if (lblPlayerTank != null) {
+            boardCells[playerTank.getPosX()][playerTank.getPosY()].remove(lblPlayerTank);
+            lblPlayerTank = null; // Establece el JLabel actual como nulo
+        }
+
+        // Crea un nuevo JLabel y lo coloca en la nueva posición
+        lblPlayerTank = new JLabel(icon);
+        lblPlayerTank.setSize(64, 64);
+        lblPlayerTank.setBackground(Color.red);
+        lblPlayerTank.setForeground(Color.red);
+        playerTank.setLabel(lblPlayerTank); // Vincula el JLabel al objeto del jugador
+        playerTank.setPosX(posX);
+        playerTank.setPosY(posY);
+        boardCells[posX][posY].add(lblPlayerTank); // Coloca en la nueva posición
         gameView.pnlGame.revalidate();
     }
 
-    public void movePlayerTank(int deltaX, int deltaY, ImageIcon icon){
-        playerPosX += deltaX;
-        playerPosY += deltaY;
-        
-        // Updates the position of the label
-        if (playerTankLabel != null){
-            playerTankLabel.setIcon(icon);
-            playerTankLabel.setLocation(playerPosX, playerPosY);
-        }
-    }
     
-    public void moveEnemyTank(int posX, int posY){
+    public void drawEnemyTank(int posX, int posY){
         
     }
             
-    public void drawEnviroment(){ // Draws bushes, bricks, water and eagle
+    public void drawEnviroment(int posX, int posY){ // Draws bushes, bricks, water and eagle
+        
+    }
+    
+    public int[] findPos(JLabel lbl){
+        // Find the current position of the button in the boardCells array
+        int[] position = {-1, -1};
+
+        for (int i = 0; i < 25; i++) {
+            for (int j = 0; j < 25; j++) {
+                if (boardCells[i][j].getComponentCount() > 0) {
+                    Component component = boardCells[i][j].getComponent(0);
+                    if (component instanceof JLabel && component.equals(lbl)) {
+                        position[0] = i;
+                        position[1] = j;
+                        return position;
+                    }
+                }
+            }
+        }    
+        
+        return position;
+    }   
+    
+    public void erasePreviousPosition(int posX, int posY, JLabel lbl) {
+        // Obtén el JLabel en la posición anterior
+        Component[] components = boardCells[posX][posY].getComponents();
+
+        // Verifica si hay componentes y si el primer componente es un JLabel
+        if (components.length > 0 && components[0] instanceof JLabel) {
+            System.out.println("aqui");
+            boardCells[posX][posY].remove(lbl);
+            gameView.pnlGame.revalidate();
+            gameView.pnlGame.repaint();
+        }
+    }
+    
+    
+    private boolean killEnemy(){
+        return true;
+    }
+    
+    private boolean killBrick(){
+        return true;
+    }   
+
+    public void movePlayerTank(int deltaX, int deltaY, ImageIcon icon){  
+        int posX = playerTank.getPosX() + deltaX;
+        int posY = playerTank.getPosY() + deltaY;
+        
+        erasePreviousPosition(playerTank.getPosX(), playerTank.getPosY(), playerTank.getLabel()); // Elimina el JLabel anterior
+        
+        playerTank.setPosX(posX);
+        playerTank.setPosY(posY);
+        
+        drawPlayerTank(posX, posY, icon); // Draws the player on board
+    }
+    
+    public void moveEnemyTank(){
+        
+    }
+    
+    public void moveShell(JLabel lbl){
+        
+    }
+    public void enemyEvents(JLabel lbl){
         
     }
     

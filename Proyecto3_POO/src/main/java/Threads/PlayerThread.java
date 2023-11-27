@@ -33,6 +33,7 @@ public class PlayerThread extends Thread{
     public void run(){
         while (isRunning){
             try{
+                
                 sleep(2000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(EnemiesThread.class.getName()).log(Level.SEVERE, null, ex);
