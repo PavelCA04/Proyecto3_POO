@@ -3,11 +3,16 @@ package Prototypes;
 
 import Game.Config;
 import Game.EnumDirection;
+import Interfaces.IObservable;
+import Interfaces.IObserver;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JLabel;
 
 
-public class PlayerTank implements Tank{
+public class PlayerTank implements Tank, IObservable{
     
+    private List<IObserver> observers = new ArrayList<>();
     private String id;
     private Config config;
     private EnumDirection dir;
@@ -143,4 +148,21 @@ public class PlayerTank implements Tank{
         this.dir = dir;
     }
     
+
+   @Override
+    public void addObserver(IObserver observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(IObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyAllObservers(String command, Object source) {
+        for (IObserver observer : observers) {
+            observer.notifyObserver(command, source);
+        }
+    }
 }

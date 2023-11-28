@@ -11,6 +11,7 @@ import Interfaces.ICommand;
 import Prototypes.Brick;
 import Prototypes.Bush;
 import Prototypes.Eagle;
+import Interfaces.IObserver;
 import Prototypes.FastTank;
 import Prototypes.MetalBrick;
 import Prototypes.PlayerTank;
@@ -32,7 +33,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.ObjectInputFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -44,13 +44,13 @@ import javax.swing.JPanel;
 
 
 
-public class GameController implements KeyListener{
+public class GameController implements KeyListener, IObserver{
     
     ///////////////
     // Atributes //
     ///////////////   
     
-    private GameModel gameModel;
+
     private GameWindow gameView;
     private final Map<Integer, ICommand> keyMappings;
     
@@ -80,11 +80,9 @@ public class GameController implements KeyListener{
     ////////////////////////////////// Matrix board  //////////////////////////////////
     private JPanel[][] boardCells = new JPanel[13][17]; // matriz
     private int level;    
-    
-    
-    
-    
-    
+    private int shotsfired;
+    private int killedTank;
+    private int bonusLevel;
     
     
     
@@ -92,23 +90,26 @@ public class GameController implements KeyListener{
     // Contructors //
     /////////////////   
     
-    public GameController (GameModel gameModel, GameWindow gameView, int level) {
+    public GameController (int level) {
         config = Config.getInstance(); // Singleton de config
         
         this.level = level;
-        this.gameModel = gameModel;
-        this.gameView = gameView;
+        this.gameView = new GameWindow(this);
+        gameView.setVisible(true);
         this.keyMappings = new HashMap<>();
+        this.shotsfired = 0;
+        this.killedTank = 0;
+        this.bonusLevel = 0;
         
         enemThreadArray = new ArrayList<EnemiesThread>();
         shellThreads = new ArrayList<ShellThread>();
         
-        keyMappings.put(KeyEvent.VK_W, new MoveUpCommand(gameModel));
-        keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand(gameModel));
-        keyMappings.put(KeyEvent.VK_S, new MoveDownCommand(gameModel));
-        keyMappings.put(KeyEvent.VK_D, new MoveRightCommand(gameModel));
-        keyMappings.put(KeyEvent.VK_SPACE, new FireCommand(gameModel));
-        keyMappings.put(KeyEvent.VK_ESCAPE, new PauseCommand(gameModel));
+        keyMappings.put(KeyEvent.VK_W, new MoveUpCommand());
+        keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand());
+        keyMappings.put(KeyEvent.VK_S, new MoveDownCommand());
+        keyMappings.put(KeyEvent.VK_D, new MoveRightCommand());
+        keyMappings.put(KeyEvent.VK_SPACE, new FireCommand(this));
+        keyMappings.put(KeyEvent.VK_ESCAPE, new PauseCommand(this));
         
         _init_();
         configureGamePanel();
@@ -116,8 +117,7 @@ public class GameController implements KeyListener{
         
         
         //drawPlayerTank(new PlayerTank());
-    }    
-    
+    }  
     
 
     
@@ -132,7 +132,7 @@ public class GameController implements KeyListener{
     // inicia el binding con la vista
     private void _init_ (){
         gameView.setTitle("Battle City");
-        
+        gameView.getLvlLabel().setText("Level: " + level);
         gameView.addKeyListener(this);
         gameView.setFocusable(true);
         gameView.setFocusTraversalKeysEnabled(false);
@@ -148,7 +148,7 @@ public class GameController implements KeyListener{
         //PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
         //PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
         //PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
-        //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);        
+        //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
     }
 
     private void board(){  // Genera el tablero
@@ -171,7 +171,13 @@ public class GameController implements KeyListener{
         Eagle eagle = new Eagle(12, 8);
         placeEagle(12, 8, eagle);
     }
-     
+    
+    public void nextLevel(){
+        int level = this.level;
+        PassLevel next = new PassLevel(level);
+        next.setVisible(true);
+    }
+    
     public void drawPlayerTank(int posX, int posY, ImageIcon icon) {
         // Elimina el JLabel anterior si existe
         if (lblPlayerTank != null) {
@@ -391,6 +397,20 @@ public class GameController implements KeyListener{
     
     
     
+    public void updateShotsLabel(){
+        gameView.getShotsFiredLabel().setText("Shots fired : " + shotsfired);
+    }
+    
+    public void updateKilledTanksLabel(){
+        gameView.getKilledTanksLabel().setText("Killed Tanks : " + killedTank);
+    }
+    
+    public void updateBonusLabel(){
+        gameView.getBonusLabel().setText("Bonus Taken : " + bonusLevel);
+    }
+    public void pauseGame(){
+        gameView.pauseGame();
+    }
     public void moveEnemyTank(){
         
     }
@@ -398,11 +418,6 @@ public class GameController implements KeyListener{
     public void enemyEvents(JLabel lbl){
         
     }
-    
-    
-    
-    
-    
     
     @Override
     public void keyPressed(KeyEvent e){
@@ -424,6 +439,68 @@ public class GameController implements KeyListener{
     public void keyReleased(KeyEvent e) {
         // Not necessary  
     }
-    
 
+    @Override
+    public void notifyObserver(String command, Object source) {
+        if (command.equals("fired")) {
+            System.out.println("SocialMedia.Celebrity.notifyAllFollowers()");
+            shotsfired ++;
+            updateShotsLabel();
+            
+            }        
+        if (command.equals("killedTank")) {
+            System.out.println("Killed Tank");
+            killedTank++;
+            updateKilledTanksLabel();
+        }
+        if (command.equals("bonus")) {
+            System.out.println("Game.GameController.notifyObserver()");
+            bonusLevel++;
+            updateBonusLabel();
+        }
+        if (command.equals("pause")) {
+            System.out.println("Game.GameController.notifyObserver()");
+            pauseGame();
+        }
+    }
+    /* Codigo del compa
+    public void setBoard() {
+
+
+        levelMatrix = LevelConstructor.levelChooser(level);
+        /
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                              
+                labels[i][j] = new JLabel();
+                labels[i][j].setOpaque(true);
+                
+                int identifier = levelMatrix[i][j];
+                ImageIcon imageIcon = imageMap.get(identifier);
+                
+                if (identifier != 0){
+                    labels[i][j].setIcon(imageIcon);
+                    if (identifier != 5){ //Si es arbol es transparente
+                        hasWall[i][j] = true; //Se hace para verificar las colisiones a la hora de mover el tanque enemigo y propio
+                        if (identifier == 4){
+                            bricks[i][j] = new Wall();
+                        }
+                    } else {
+                        hasGrass[i][j] = true;
+                    }
+                } else {
+                    labels[i][j].setBackground(new java.awt.Color(0, 0, 0));
+                }
+
+                labels[i][j].setPreferredSize(new Dimension(labelSize, labelSize));
+
+                GamePlayPanel.add(labels[i][j]);
+            }
+        }
+        
+        labels[TankY][TankX].setIcon(new ImageIcon(tank.getIcon())); 
+        isTankInPlace[TankY][TankX] = true;
+        tanks[TankY][TankX] = tank;
+    }
+    */
 }

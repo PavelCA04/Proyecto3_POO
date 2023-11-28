@@ -23,16 +23,7 @@ public class Main {
     
     public static void main(String[] args) {
                
-        GameModel model = new GameModel();
-        GameWindow view = new GameWindow();
-        GameController controller = new GameController(model, view, 1);
+        GameController controller = new GameController( 1);
         
-        view.addWindowListener(new WindowAdapter(){ //detecta el evento de cierre de la ventana 
-            public void windowClosing(WindowEvent e){
-                System.exit(0); // programa se cierra
-            }
-        });
-        
-        view.setVisible(true);
     }
 }

@@ -2,7 +2,6 @@
 package Commands;
 import Game.EnumDirection;
 import Game.GameController;
-import Game.GameModel;
 import Interfaces.ICommand;
 import javax.swing.ImageIcon;
 
@@ -10,12 +9,12 @@ import javax.swing.ImageIcon;
 
 public class MoveLeftCommand implements ICommand{
     
-    private final GameModel gameModel;
+
     private final ImageIcon image;
     private final EnumDirection dir = EnumDirection.LEFT;
     
-    public MoveLeftCommand(GameModel gameModel){
-        this.gameModel = gameModel;
+    public MoveLeftCommand(){
+
         this.image = new ImageIcon("Images\\playerLeft.png"); 
     }
     
