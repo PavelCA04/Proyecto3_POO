@@ -2,6 +2,7 @@
 package Prototypes;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 
 public class Eagle {
@@ -9,6 +10,7 @@ public class Eagle {
     private static final int width = 64;
     private static final int length = 64;
     private int posX, posY;
+    JLabel label;
     
     public Eagle(int posX, int posY){
         this.hp = 1;
@@ -16,8 +18,11 @@ public class Eagle {
         this.posY = posY;
     }
     
-    public void draw(){
-        ImageIcon image = new ImageIcon("Images\\eagle.png");
-        // Conectar con el controller
-    }    
+    public JLabel getLabel() {
+        return label;
+    }
+
+    public void setLabel(JLabel label) {
+        this.label = label;
+    }   
 }

@@ -8,13 +8,18 @@ import Commands.MoveRightCommand;
 import Commands.MoveUpCommand;
 import Commands.PauseCommand;
 import Interfaces.ICommand;
+import Prototypes.Brick;
+import Prototypes.Bush;
+import Prototypes.Eagle;
 import Prototypes.FastTank;
+import Prototypes.MetalBrick;
 import Prototypes.PlayerTank;
 import Prototypes.PowerTank;
 import Prototypes.Shell;
 import Prototypes.SimpleTank;
 import Prototypes.Tank;
 import Prototypes.TankTank;
+import Prototypes.Water;
 import Threads.EnemiesThread;
 import Threads.PlayerThread;
 import Threads.ShellThread;
@@ -60,8 +65,27 @@ public class GameController implements KeyListener{
     private ArrayList<EnemiesThread> enemThreadArray; // thread array de enemigos
     private ArrayList<ShellThread> shellThreads; // array de disparos
     
+    
+    
+    //////////////////////////// Lists of entities in game ////////////////////////////
+    private ArrayList<Brick> bricksArray;
+    private ArrayList<MetalBrick> metalBricksArray;
+    private ArrayList<Bush> bushesArray;
+    private Eagle eagle;
+    private ArrayList<Water> waterArray;
+    ///////////////////////////////////////////////////////////////////////////////////
+    
+    
+    
+    ////////////////////////////////// Matrix board  //////////////////////////////////
     private JPanel[][] boardCells = new JPanel[13][17]; // matriz
     private int level;    
+    
+    
+    
+    
+    
+    
     
     
     /////////////////
@@ -120,7 +144,7 @@ public class GameController implements KeyListener{
         //FastTank fastTank = new FastTank("FastTank");
         //PowerTank powerTank = new PowerTank("PowerTank");
         //TankTank tankTank = new TankTank("TankTank");
-        PrototypeFactory.addPrototype(playerTank.getId(), playerTank);
+        //PrototypeFactory.addPrototype(playerTank.getId(), playerTank);
         //PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
         //PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
         //PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
@@ -144,6 +168,8 @@ public class GameController implements KeyListener{
         }
         ImageIcon image = new ImageIcon("Images\\playerUp.png");
         drawPlayerTank(10, 8, image);
+        Eagle eagle = new Eagle(12, 8);
+        placeEagle(12, 8, eagle);
     }
      
     public void drawPlayerTank(int posX, int posY, ImageIcon icon) {
@@ -177,12 +203,64 @@ public class GameController implements KeyListener{
         gameView.pnlGame.revalidate();        
     }
     
-    public void drawEnemyTank(int posX, int posY){
-        
+    public void placeBrick(int posX, int posY, Brick brick){
+        bricksArray.add(brick); 
+        ImageIcon icon = new ImageIcon("Images\\brick.png");
+        JLabel lblBrick = new JLabel(icon);
+        lblBrick.setSize(64, 64);
+        lblBrick.setBackground(Color.BLACK);
+        lblBrick.setForeground(Color.BLACK);
+        brick.setLabel(lblBrick); // Vincula el JLabel al objeto del jugador
+        boardCells[posX][posY].add(lblBrick); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();                
     }
-            
-    public void drawEnviroment(int posX, int posY){ // Draws bushes, bricks, water and eagle
-        
+    
+    public void placeMetalBrick(int posX, int posY, MetalBrick mBrick){
+        metalBricksArray.add(mBrick); 
+        ImageIcon icon = new ImageIcon("Images\\metalBrick.png");
+        JLabel lblMBrick = new JLabel(icon);
+        lblMBrick.setSize(64, 64);
+        lblMBrick.setBackground(Color.BLACK);
+        lblMBrick.setForeground(Color.BLACK);
+        mBrick.setLabel(lblMBrick); // Vincula el JLabel al objeto del jugador
+        boardCells[posX][posY].add(lblMBrick); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();                
+    }
+    
+    public void placeWater(int posX, int posY, Water water){
+        waterArray.add(water);
+        ImageIcon icon = new ImageIcon("Images\\water.png");
+        JLabel lblWater = new JLabel(icon);
+        lblWater.setSize(64, 64);
+        lblWater.setBackground(Color.BLACK);
+        lblWater.setForeground(Color.BLACK);
+        water.setLabel(lblWater); // Vincula el JLabel al objeto del jugador
+        boardCells[posX][posY].add(lblWater); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();        
+    }
+    
+    public void placeBush(int posX, int posY, Bush bush){
+        bushesArray.add(bush);
+        ImageIcon icon = new ImageIcon("Images\\bush.png");
+        JLabel lblBush = new JLabel(icon);
+        lblBush.setSize(64, 64);
+        lblBush.setBackground(Color.BLACK);
+        lblBush.setForeground(Color.BLACK);
+        bush.setLabel(lblBush); // Vincula el JLabel al objeto del jugador
+        boardCells[posX][posY].add(lblBush); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();        
+    }
+    
+    public void placeEagle(int posX, int posY, Eagle eagle){
+        this.eagle = eagle;
+        ImageIcon icon = new ImageIcon("Images\\eagle.png");
+        JLabel lblEagle = new JLabel(icon);
+        lblEagle.setSize(64, 64);
+        lblEagle.setBackground(Color.BLACK);
+        lblEagle.setForeground(Color.BLACK);
+        eagle.setLabel(lblEagle); // Vincula el JLabel al objeto del jugador
+        boardCells[posX][posY].add(lblEagle); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();      
     }
     
     public int[] findPos(JLabel lbl){

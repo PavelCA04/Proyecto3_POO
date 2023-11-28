@@ -1,17 +1,16 @@
 
 package Prototypes;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 
-public class Bush {
+public class Water {
     private static final int width = 64;
     private static final int length = 64;
     private int posX, posY;
     JLabel label;
-    
-    public Bush(int posX, int posY){
+
+    public Water(int posX, int posY){
         this.posX = posX;
         this.posY = posY;
     }
