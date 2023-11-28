@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Game;
 
-/**
- *
- * @author pavel
- */
+
 public class LevelConstructor {
     public static int[][] levelChooser(int level) {
-        
         switch (level) {
             case (1) -> {
                 return new int[][] {

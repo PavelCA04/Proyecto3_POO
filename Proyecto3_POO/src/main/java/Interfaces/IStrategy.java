@@ -10,5 +10,5 @@ package Interfaces;
  */
 public interface IStrategy {
     
-    void lanzarGolpe();
+    void applyBonus();
 }
