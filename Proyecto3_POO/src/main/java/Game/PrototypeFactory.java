@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class PrototypeFactory {
     // hash de prototypes por nombre
-    private static HashMap<String,Tank> prototypes = new HashMap<>();       
+    private static HashMap<String, Tank> prototypes = new HashMap<>();       
     
     // getPrototype del hash por nombre, pero CLONADO
     public static Tank getPrototype(String prototypeName){           

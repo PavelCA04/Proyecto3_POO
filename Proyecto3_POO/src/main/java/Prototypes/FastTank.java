@@ -30,15 +30,6 @@ public class FastTank extends Enemy implements Tank {
     public Tank deepClone() {
         return clone();    
     }    
-    @Override
-    public void move() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void shoot() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     @Override
     public int getResistance() {

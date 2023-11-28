@@ -1,57 +1,84 @@
 
 package Prototypes;
 
+import Game.Config;
+import Game.EnumDirection;
 import javax.swing.JLabel;
 
 
 public class PlayerTank implements Tank{
     
     private String id;
+    private Config config;
+    private EnumDirection dir;
     private int posX, posY;
     private int hp;
-    private int tankVel;
+    private long tankVel;
+    private long fireRate;
     private int score;
     JLabel label;
-    
-    
+    private long lastMoveTime;
+    private long lastFireTime;
     
     
     public PlayerTank(){       
     }
-    public PlayerTank(String id) {
+    public PlayerTank(String id, Config config) {
         this();
         this.id = id;        
         this.hp = 3;
-        this.tankVel = 5;
+        this.tankVel = config.getPlayerMovementSpeed();
+        this.fireRate = config.getPlayerFireRate();
+        lastMoveTime = System.currentTimeMillis(); // Inicializa lastMoveTime con el tiempo actual
+        lastFireTime = System.currentTimeMillis(); // Inicializa lastFireTime con el tiempo actual
     }
     
     
     @Override
     public Tank clone() {
-        return new PlayerTank(this.id);
+        return new PlayerTank(this.id, this.config);
     }
 
     @Override
     public Tank deepClone() {
         return clone();    
     }   
-    
-    
-    @Override
-    public void move() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void shoot() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     @Override
     public int getResistance() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    
+    public boolean canMove() {
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - lastMoveTime;
 
+        return elapsedTime >= tankVel; // Devuelve true si ha pasado suficiente tiempo
+    }
+    
+    public void updateLastMoveTime() {
+        lastMoveTime = System.currentTimeMillis(); // Actualiza el tiempo del último movimiento
+    }
+    
+    public boolean canFire(){
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - lastMoveTime;
+
+        return elapsedTime >= fireRate; // Devuelve true si ha pasado suficiente tiempo        
+    }
+    
+    public void updateLastFireTime() {
+        lastFireTime = System.currentTimeMillis(); // Actualiza el tiempo del último movimiento
+    }
+    
+    public Config getConfig() {
+        return config;
+    }
+
+    public long getFireRate() {
+        return fireRate;
+    }
+    
     public String getId() {
         return id;
     }
@@ -68,7 +95,11 @@ public class PlayerTank implements Tank{
         return hp;
     }
 
-    public int getTankVel() {
+    public EnumDirection getDir() {
+        return dir;
+    }
+
+    public long getTankVel() {
         return tankVel;
     }
 
@@ -107,4 +138,9 @@ public class PlayerTank implements Tank{
     public void setLabel(JLabel lbl) {
         this.label = lbl;
     }
+
+    public void setDir(EnumDirection dir) {
+        this.dir = dir;
+    }
+    
 }

@@ -1,6 +1,7 @@
 
 package Threads;
 
+import Game.EnumDirection;
 import Game.GameController;
 import Prototypes.Shell;
 import static java.lang.Thread.sleep;
@@ -14,9 +15,11 @@ public class ShellThread extends Thread{
     ///////////////
     
     Shell shell;
-    int posX;
-    int posY;
     GameController refController;
+    EnumDirection dir;
+    long fireRate;
+
+    
     boolean isRunning = true;
  
     
@@ -26,9 +29,11 @@ public class ShellThread extends Thread{
     // Contructors //
     /////////////////
     
-    public ShellThread(int posX, int posY, Shell shell, GameController refController){
+    public ShellThread(long fireRate, Shell shell, EnumDirection dir, GameController refController){
         this.shell = shell;
         this.refController = refController;
+        this.dir = dir;
+        this.fireRate = fireRate;
     }
     
     
@@ -41,11 +46,17 @@ public class ShellThread extends Thread{
     public void run(){
         while (isRunning){
             try{
-                refController.moveShell(shell.getLabel());
-                sleep(1000);
+                refController.moveShell(this, shell, dir, shell.getPosX(), shell.getPosY());
+                sleep(fireRate);
             } catch (InterruptedException ex) {
                 Logger.getLogger(EnemiesThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }    
+    } 
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+    }
+    
+    
 }

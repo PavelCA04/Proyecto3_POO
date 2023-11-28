@@ -19,6 +19,7 @@ public class FireCommand implements ICommand{
     @Override
     public void execute(GameController gameCtrl) {
         System.out.println("Piu piu"); 
+        gameCtrl.fireShellPlayer();
     }
     
 }

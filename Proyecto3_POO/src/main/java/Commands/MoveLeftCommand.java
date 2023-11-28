@@ -1,5 +1,6 @@
 
 package Commands;
+import Game.EnumDirection;
 import Game.GameController;
 import Game.GameModel;
 import Interfaces.ICommand;
@@ -11,6 +12,7 @@ public class MoveLeftCommand implements ICommand{
     
     private final GameModel gameModel;
     private final ImageIcon image;
+    private final EnumDirection dir = EnumDirection.LEFT;
     
     public MoveLeftCommand(GameModel gameModel){
         this.gameModel = gameModel;
@@ -21,8 +23,7 @@ public class MoveLeftCommand implements ICommand{
     public void execute(GameController gameCtrl) {
         // logic
         System.out.println("Left");
-        gameCtrl.movePlayerTank(0, -1, image);
-
+        gameCtrl.movePlayerTank(0, -1, image, dir);
     }
     
 }
