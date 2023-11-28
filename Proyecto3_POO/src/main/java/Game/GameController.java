@@ -138,7 +138,7 @@ public class GameController implements KeyListener, IObserver{
         gameView.setFocusTraversalKeysEnabled(false);
         
         
-        playerTank = new PlayerTank("PlayerTank", config);
+        playerTank = new PlayerTank("PlayerTank", config,this);
         playerTank.setDir(EnumDirection.UP);
         //SimpleTank simpleTank = new SimpleTank("SimpleTank");
         //FastTank fastTank = new FastTank("FastTank");

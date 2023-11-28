@@ -3,6 +3,7 @@ package Prototypes;
 
 import Game.Config;
 import Game.EnumDirection;
+import Game.GameController;
 import Interfaces.IObservable;
 import Interfaces.IObserver;
 import java.util.ArrayList;
@@ -24,16 +25,19 @@ public class PlayerTank implements Tank, IObservable{
     JLabel label;
     private long lastMoveTime;
     private long lastFireTime;
+    private GameController controller;
     
     
     public PlayerTank(){       
     }
-    public PlayerTank(String id, Config config) {
+    public PlayerTank(String id, Config config,GameController controller) {
         this();
         this.id = id;        
         this.hp = 3;
         this.tankVel = config.getPlayerMovementSpeed();
         this.fireRate = config.getPlayerFireRate();
+        this.controller = controller;
+        addObserver(controller);
         lastMoveTime = System.currentTimeMillis(); // Inicializa lastMoveTime con el tiempo actual
         lastFireTime = System.currentTimeMillis(); // Inicializa lastFireTime con el tiempo actual
     }
@@ -41,7 +45,7 @@ public class PlayerTank implements Tank, IObservable{
     
     @Override
     public Tank clone() {
-        return new PlayerTank(this.id, this.config);
+        return new PlayerTank(this.id, this.config,this.controller);//No se si el this.controller vaya aca,es para que tenga la conexcion para el notify
     }
 
     @Override
@@ -57,6 +61,7 @@ public class PlayerTank implements Tank, IObservable{
     public boolean canMove() {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - lastMoveTime;
+        pruebaObserver();
 
         return elapsedTime >= tankVel; // Devuelve true si ha pasado suficiente tiempo
     }
@@ -67,7 +72,7 @@ public class PlayerTank implements Tank, IObservable{
     
     public boolean canFire(){
         long currentTime = System.currentTimeMillis();
-        long elapsedTime = currentTime - lastMoveTime;
+        long elapsedTime = currentTime - lastMoveTime;//Creo que aqui va lastfiretime
 
         return elapsedTime >= fireRate; // Devuelve true si ha pasado suficiente tiempo        
     }
@@ -147,7 +152,9 @@ public class PlayerTank implements Tank, IObservable{
     public void setDir(EnumDirection dir) {
         this.dir = dir;
     }
-    
+    public void pruebaObserver(){
+        notifyAllObservers("bonus", this);
+    }
 
    @Override
     public void addObserver(IObserver observer) {
