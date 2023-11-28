@@ -1,6 +1,9 @@
 
 package Game;
 
+import java.awt.Window;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -54,6 +57,7 @@ public class GameWindow extends javax.swing.JFrame {
         pnlStats.setMinimumSize(new java.awt.Dimension(282, 832));
 
         btnNextLevel.setText("Next Level");
+        btnNextLevel.setEnabled(false);
         btnNextLevel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnNextLevelActionPerformed(evt);
@@ -150,11 +154,21 @@ public class GameWindow extends javax.swing.JFrame {
             System.out.println("Game Resumed");
         } else if (choice == 1) {
             // User selected "Quit Game"
-            this.dispose();
+            Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    if (window instanceof JFrame) {
+                ((JFrame) window).dispose();
+                }
+            }
+        System.out.println("Se salió del juego exitosamente");
         }
     }
     public JLabel getBonusLabel() {
         return BonusLabel;
+    }
+
+    public void setNxtLvlbtn(){
+        btnNextLevel.setEnabled(true);
     }
 
     public JLabel getLvlLabel() {
