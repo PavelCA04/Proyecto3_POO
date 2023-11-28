@@ -44,7 +44,7 @@ public class PassLevel extends javax.swing.JFrame {
 
         jLabel2.setBackground(new java.awt.Color(102, 102, 102));
         jLabel2.setFont(new java.awt.Font("Arial Rounded MT Bold", 0, 24)); // NOI18N
-        jLabel2.setText("   HAS TERMINADO EL NIVEL, DESEAS CONTINUAR?");
+        jLabel2.setText("   HA TERMINADO EL NIVEL, DESEAS CONTINUAR?");
         jLabel2.setOpaque(true);
         getContentPane().add(jLabel2);
         jLabel2.setBounds(180, 10, 640, 50);

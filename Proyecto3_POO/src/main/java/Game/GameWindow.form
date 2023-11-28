@@ -92,10 +92,6 @@
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="87" max="-2" attributes="0"/>
-                          <Component id="btnNextLevel" min="-2" pref="100" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="LvlLabel" min="-2" max="-2" attributes="0"/>
@@ -104,6 +100,13 @@
                                   <Component id="KilledTanksLabel" alignment="0" max="32767" attributes="0"/>
                                   <Component id="BonusLabel" alignment="0" pref="192" max="32767" attributes="0"/>
                               </Group>
+                          </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="87" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="btnFinishGame" min="-2" pref="151" max="-2" attributes="0"/>
+                              <Component id="btnNextLevel" min="-2" pref="100" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -118,7 +121,9 @@
                   <Component id="LvlLabel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
                   <Component id="btnNextLevel" min="-2" pref="40" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="135" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                  <Component id="btnFinishGame" min="-2" pref="40" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
                   <Component id="ShotsFiredLabel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="84" max="-2" attributes="0"/>
                   <Component id="KilledTanksLabel" min="-2" pref="25" max="-2" attributes="0"/>
@@ -170,6 +175,15 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Level: 1"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnFinishGame">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Finish Game"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnFinishGameActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

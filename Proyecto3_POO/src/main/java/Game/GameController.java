@@ -453,9 +453,13 @@ public class GameController implements KeyListener, IObserver{
         //Shell shell = new Shell();
         //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
     }
-    public void enableNxtLevelBtn(){
+    public void enableNxtLevelBtn() {
+    if (level < 8) {
         gameView.setNxtLvlbtn();
+    } else {
+        gameView.setNxtLvlbtnfalse();
     }
+}
     public void updateShotsLabel(){
         gameView.getShotsFiredLabel().setText("Shots fired : " + shotsfired);
     }
@@ -522,44 +526,4 @@ public class GameController implements KeyListener, IObserver{
             pauseGame();
         }
     }
-    /* Codigo del compa
-    public void setBoard() {
-
-
-        levelMatrix = LevelConstructor.levelChooser(level);
-        /
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 13; j++) {
-                              
-                labels[i][j] = new JLabel();
-                labels[i][j].setOpaque(true);
-                
-                int identifier = levelMatrix[i][j];
-                ImageIcon imageIcon = imageMap.get(identifier);
-                
-                if (identifier != 0){
-                    labels[i][j].setIcon(imageIcon);
-                    if (identifier != 5){ //Si es arbol es transparente
-                        hasWall[i][j] = true; //Se hace para verificar las colisiones a la hora de mover el tanque enemigo y propio
-                        if (identifier == 4){
-                            bricks[i][j] = new Wall();
-                        }
-                    } else {
-                        hasGrass[i][j] = true;
-                    }
-                } else {
-                    labels[i][j].setBackground(new java.awt.Color(0, 0, 0));
-                }
-
-                labels[i][j].setPreferredSize(new Dimension(labelSize, labelSize));
-
-                GamePlayPanel.add(labels[i][j]);
-            }
-        }
-        
-        labels[TankY][TankX].setIcon(new ImageIcon(tank.getIcon())); 
-        isTankInPlace[TankY][TankX] = true;
-        tanks[TankY][TankX] = tank;
-    }
-    */
 }

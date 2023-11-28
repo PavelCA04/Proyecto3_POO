@@ -15,5 +15,6 @@ public class BombBonus implements IStrategy {
     public void applyBonus() {
         System.out.println("Bomba Bonus: Destroy all enemies on the screen");
         // Implementation of destroying all enemies
+        //Recorrer el thread y set la vida a 0;
     }
 }

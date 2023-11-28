@@ -20,6 +20,7 @@ public class GameWindow extends javax.swing.JFrame {
     public GameWindow(GameController gamecontroller) {
         initComponents();
         this.gamecontroller= gamecontroller;
+        btnFinishGame.setVisible(false);
     }
 
 
@@ -34,6 +35,7 @@ public class GameWindow extends javax.swing.JFrame {
         KilledTanksLabel = new javax.swing.JLabel();
         BonusLabel = new javax.swing.JLabel();
         LvlLabel = new javax.swing.JLabel();
+        btnFinishGame = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -76,6 +78,14 @@ public class GameWindow extends javax.swing.JFrame {
         LvlLabel.setFont(new java.awt.Font("Source Sans Pro", 1, 24)); // NOI18N
         LvlLabel.setText("Level: 1");
 
+        btnFinishGame.setText("Finish Game");
+        btnFinishGame.setEnabled(false);
+        btnFinishGame.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFinishGameActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlStatsLayout = new javax.swing.GroupLayout(pnlStats);
         pnlStats.setLayout(pnlStatsLayout);
         pnlStatsLayout.setHorizontalGroup(
@@ -83,16 +93,18 @@ public class GameWindow extends javax.swing.JFrame {
             .addGroup(pnlStatsLayout.createSequentialGroup()
                 .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlStatsLayout.createSequentialGroup()
-                        .addGap(87, 87, 87)
-                        .addComponent(btnNextLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(pnlStatsLayout.createSequentialGroup()
                         .addGap(63, 63, 63)
                         .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(LvlLabel)
                             .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(ShotsFiredLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(KilledTanksLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(BonusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)))))
+                                .addComponent(BonusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))))
+                    .addGroup(pnlStatsLayout.createSequentialGroup()
+                        .addGap(87, 87, 87)
+                        .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnFinishGame, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnNextLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(115, Short.MAX_VALUE))
         );
         pnlStatsLayout.setVerticalGroup(
@@ -102,7 +114,9 @@ public class GameWindow extends javax.swing.JFrame {
                 .addComponent(LvlLabel)
                 .addGap(33, 33, 33)
                 .addComponent(btnNextLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(135, 135, 135)
+                .addGap(50, 50, 50)
+                .addComponent(btnFinishGame, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
                 .addComponent(ShotsFiredLabel)
                 .addGap(84, 84, 84)
                 .addComponent(KilledTanksLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -133,6 +147,22 @@ public class GameWindow extends javax.swing.JFrame {
     private void btnNextLevelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextLevelActionPerformed
         gamecontroller.nextLevel();
     }//GEN-LAST:event_btnNextLevelActionPerformed
+
+    private void btnFinishGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinishGameActionPerformed
+           // Show a dialog with a message
+    int result = JOptionPane.showOptionDialog(
+        this, 
+        "This is the end of the game.", 
+        "Game Over", 
+        JOptionPane.DEFAULT_OPTION, 
+        JOptionPane.INFORMATION_MESSAGE, 
+        null, 
+        new Object[]{}, 
+        null);
+        if (result == JOptionPane.OK_OPTION || result == JOptionPane.CLOSED_OPTION) {
+        System.exit(0);
+        }
+    }//GEN-LAST:event_btnFinishGameActionPerformed
     public void pauseGame(){
         String[] options = {"Resume", "Quit Game"};
         int choice = JOptionPane.showOptionDialog(
@@ -166,7 +196,11 @@ public class GameWindow extends javax.swing.JFrame {
     public JLabel getBonusLabel() {
         return BonusLabel;
     }
-
+    public void setNxtLvlbtnfalse(){
+        btnNextLevel.setEnabled(false);
+        btnFinishGame.setVisible(true);
+        btnFinishGame.setEnabled(true);
+    }
     public void setNxtLvlbtn(){
         btnNextLevel.setEnabled(true);
     }
@@ -188,6 +222,7 @@ public class GameWindow extends javax.swing.JFrame {
     private javax.swing.JLabel KilledTanksLabel;
     private javax.swing.JLabel LvlLabel;
     private javax.swing.JLabel ShotsFiredLabel;
+    private javax.swing.JButton btnFinishGame;
     private javax.swing.JButton btnNextLevel;
     public javax.swing.JPanel pnlGame;
     public javax.swing.JPanel pnlStats;

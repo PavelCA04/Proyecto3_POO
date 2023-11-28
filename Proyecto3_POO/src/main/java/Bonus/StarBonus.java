@@ -14,6 +14,6 @@ public class StarBonus implements IStrategy {
     @Override
     public void applyBonus() {
         System.out.println("Estrella Bonus: Tank shoots faster");
-        // Implementation of increasing shooting speed
+        // Incrementar la velocidad
     }  
 }

@@ -14,6 +14,6 @@ public class ShieldBonus implements IStrategy {
     @Override
     public void applyBonus() {
         System.out.println("Casco Bonus: Tank has a protective barrier for 10 seconds");
-        // Implementation of providing a protective barrier
+        // Podria subirsele la vida a 10000 o algo exagerado el tanque y es como si fuera invencible quizas
     }
 }
