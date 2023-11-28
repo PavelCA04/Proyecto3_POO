@@ -56,7 +56,7 @@ public class GameController implements KeyListener, IObserver{
     
     private Config config; // Singleton configuration
     private static final int Sprite_Size = 64;
-    private static final int Width = 15;
+    private static final int Width = 17; //15
     private static final int Height = 13;
     private JLabel lblPlayerTank;
     
@@ -103,6 +103,11 @@ public class GameController implements KeyListener, IObserver{
         
         enemThreadArray = new ArrayList<EnemiesThread>();
         shellThreads = new ArrayList<ShellThread>();
+        
+        bricksArray = new ArrayList<Brick>();
+        metalBricksArray = new ArrayList<MetalBrick>();
+        bushesArray = new ArrayList<Bush>();
+        waterArray = new ArrayList<Water>();
         
         keyMappings.put(KeyEvent.VK_W, new MoveUpCommand());
         keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand());
@@ -151,7 +156,8 @@ public class GameController implements KeyListener, IObserver{
         //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
     }
 
-    private void board(){  // Genera el tablero
+    private void board(){ 
+        // Genera el tablero
         gameView.pnlGame.setLayout(new GridLayout(Height, Width)); // Crear grid
         gameView.pnlGame.setBackground(Color.BLACK);
         
@@ -166,10 +172,62 @@ public class GameController implements KeyListener, IObserver{
                 gameView.pnlGame.add(cell);
             }
         }
+        
+        
+        
+        
+        
+        
+
+        
+        
+        int[][] levelMap = LevelMaker.getLevelMap(level); // Obtener el mapa del nivel actual
+        
+        if (levelMap != null) {
+            for (int i = 0; i < levelMap.length; i++) {
+                for (int j = 0; j < levelMap[i].length; j++) {
+                    int cellType = levelMap[i][j];
+                    System.out.println(""+ i + " "+ j + " " + cellType);
+                    // Colocar los elementos del mapa en el tablero según el tipo de celda
+                    switch (cellType) {
+                        case 1:
+                            Eagle eagle = new Eagle(i, j);
+                            placeEagle(i, j, eagle);
+                            break;
+                        case 2:
+                            Brick brick = new Brick(j, j);
+                            placeBrick(i, j, brick);
+                            break;
+                        case 3:
+                            MetalBrick metal = new MetalBrick(i, j);
+                            placeMetalBrick(i, j, metal);
+                            break;
+                        case 4:
+                            Bush bush = new Bush(i, j);
+                            placeBush(i, j, bush);
+                            break;
+                        case 5:
+                            Water water = new Water(i, j);
+                            placeWater(i, j, water);
+                            break;
+                    }
+                }
+            }
+        }    
+        
+        
+        
+        
+        
+        // Spawns the player in game
         ImageIcon image = new ImageIcon("Images\\playerUp.png");
-        drawPlayerTank(10, 8, image);
-        Eagle eagle = new Eagle(12, 8);
-        placeEagle(12, 8, eagle);
+        drawPlayerTank(10, 8, image);       
+        
+        
+        
+        
+        //Eagle eagle = new Eagle(12, 8);
+        //placeEagle(12, 8, eagle);
     }
     
     public void nextLevel(){
