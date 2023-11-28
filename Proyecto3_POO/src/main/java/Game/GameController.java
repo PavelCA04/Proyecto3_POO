@@ -154,6 +154,7 @@ public class GameController implements KeyListener, IObserver{
         //PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
         //PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
         //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
+        enableNxtLevelBtn();
     }
 
     private void board(){ 
@@ -452,9 +453,9 @@ public class GameController implements KeyListener, IObserver{
         //Shell shell = new Shell();
         //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
     }
-    
-    
-    
+    public void enableNxtLevelBtn(){
+        gameView.setNxtLvlbtn();
+    }
     public void updateShotsLabel(){
         gameView.getShotsFiredLabel().setText("Shots fired : " + shotsfired);
     }
