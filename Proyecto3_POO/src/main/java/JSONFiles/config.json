@@ -1,7 +1,7 @@
 {
   "playerTank": {
     "movementSpeed": 500,
-    "fireRate": 1000
+    "fireRate": 500
   },
   "enemyTanks": {
     "simpleTank": {

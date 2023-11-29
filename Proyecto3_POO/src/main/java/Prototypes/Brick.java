@@ -25,5 +25,32 @@ public class Brick {
     public void setLabel(JLabel label) {
         this.label = label;
     }
-       
+
+    public int getPosX() {
+        return posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+    
+    public void decreaseHealth(){
+        this.hp--;
+    }
 }

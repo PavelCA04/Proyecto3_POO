@@ -60,14 +60,16 @@ public class GameController implements KeyListener, IObserver{
     private static final int Height = 13;
     private JLabel lblPlayerTank;
     
-    private PlayerTank playerTank; 
     
+    
+    //////////////////////////////// Threads in game //////////////////////////////////
     private ArrayList<EnemiesThread> enemThreadArray; // thread array de enemigos
     private ArrayList<ShellThread> shellThreads; // array de disparos
+    ///////////////////////////////////////////////////////////////////////////////////
     
     
-    
-    //////////////////////////// Lists of entities in game ////////////////////////////
+    /////////////////////////////// Entities in game //////////////////////////////////
+    private PlayerTank playerTank; 
     private ArrayList<Brick> bricksArray;
     private ArrayList<MetalBrick> metalBricksArray;
     private ArrayList<Bush> bushesArray;
@@ -83,6 +85,9 @@ public class GameController implements KeyListener, IObserver{
     private int shotsfired;
     private int killedTank;
     private int bonusLevel;
+    ///////////////////////////////////////////////////////////////////////////////////
+    
+    
     
     
     
@@ -116,11 +121,15 @@ public class GameController implements KeyListener, IObserver{
         keyMappings.put(KeyEvent.VK_SPACE, new FireCommand(this));
         keyMappings.put(KeyEvent.VK_ESCAPE, new PauseCommand(this));
         
+        
+        
         _init_();
         configureGamePanel();
     }  
     
 
+    
+    
     
     /////////////
     // Methods //
@@ -178,7 +187,8 @@ public class GameController implements KeyListener, IObserver{
             for (int i = 0; i < levelMap.length; i++) {
                 for (int j = 0; j < levelMap[i].length; j++) {
                     int cellType = levelMap[i][j];
-                    System.out.println(""+ i + " "+ j + " " + cellType);
+                    if(cellType == 2)
+                        System.out.println(""+ i + " "+ j + " Tipo de bloque: " + cellType);
                     // Colocar los elementos del mapa en el tablero según el tipo de celda
                     switch (cellType) {
                         case 1:
@@ -186,7 +196,8 @@ public class GameController implements KeyListener, IObserver{
                             placeEagle(i, j, eagle);
                             break;
                         case 2:
-                            Brick brick = new Brick(j, j);
+                            Brick brick = new Brick(i, j);
+                            System.out.println("\t brickx: " + brick.getPosX() + ", bricky: " + brick.getPosY());
                             placeBrick(i, j, brick);
                             break;
                         case 3:
@@ -370,6 +381,33 @@ public class GameController implements KeyListener, IObserver{
 
         return -1; // Si no coincide con ninguno de los elementos
     }
+    
+    private Brick findBrickAtPosition(int posX, int posY) {
+        for (Brick brick : bricksArray) {
+            if (brick.getPosX() == posX && brick.getPosY() == posY) {
+                return brick;
+            }
+        }
+        return null;
+    }
+
+    private MetalBrick findMetalBrickAtPosition(int posX, int posY) {
+        for (MetalBrick metalBrick : metalBricksArray) {
+            if (metalBrick.getPosX() == posX && metalBrick.getPosY() == posY) {
+                return metalBrick;
+            }
+        }
+        return null;
+    }
+
+    private Water findWaterAtPosition(int posX, int posY) {
+        for (Water water : waterArray) {
+            if (water.getPosX() == posX && water.getPosY() == posY) {
+                return water;
+            }
+        }
+        return null;
+    }
 
     private boolean checkTankCollision(int posX, int posY){
         // Verificar si hay colisión en la posición proporcionada
@@ -386,6 +424,33 @@ public class GameController implements KeyListener, IObserver{
         // Verificar si la celda es bloqueante (ladrillo o ladrillo de metal o aguila)
         return cellType == 1 || cellType == 2 || cellType == 3;        
     }
+    
+    private void handleCollision(Shell shell, int posX, int posY) {
+        int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
+
+        switch (cellType) {
+            case 1:
+                if(eagle != null){
+                    eagle.decreaseHealth();
+                    if (eagle.getHp() <= 0) {
+                        // Eliminar el ladrillo del tablero y de la lista de ladrillos
+                        erasePreviousPosition(posX, posY, eagle.getLabel());
+                    }                    
+                }
+            case 2: // Si colisiona con un ladrillo
+                Brick collidedBrick = findBrickAtPosition(posX, posY);
+                if (collidedBrick != null) {
+                    collidedBrick.decreaseHealth(); // Reducir la vida del ladrillo
+                    if (collidedBrick.getHp() <= 0) {
+                        // Eliminar el ladrillo del tablero y de la lista de ladrillos
+                        erasePreviousPosition(posX, posY, collidedBrick.getLabel());
+                        bricksArray.remove(collidedBrick);
+                    }
+                }
+                break;
+
+        }
+    }    
     
     public void movePlayerTank(int deltaX, int deltaY, ImageIcon icon, EnumDirection dir){ 
         if(playerTank.canMove()){ // Verifies movement cooldown
@@ -448,6 +513,7 @@ public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, 
     
     // Verificar si hay colisión en la próxima posición
     if (checkShellCollision(nextPosX, nextPosY)) {
+        handleCollision(shell, nextPosX, nextPosY);
         erasePreviousPosition(posX, posY, shell.getLabel());
         st.setIsRunning(false);
         return;
