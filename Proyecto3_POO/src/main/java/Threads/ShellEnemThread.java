@@ -1,21 +1,25 @@
 
 package Threads;
 
+import Game.EnumDirection;
 import Game.GameController;
-import Prototypes.EnemyTank;
+import Prototypes.Shell;
+import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-
-
-public class EnemiesThread extends Thread{
+public class ShellEnemThread extends Thread{
     ///////////////
     // Atributes //
     ///////////////
-
-    EnemyTank enemy;
+    
+    Shell shell;
     GameController refController;
+    EnumDirection dir;
+    long fireRate;
+
+    
     boolean isRunning = true;
  
     
@@ -25,14 +29,16 @@ public class EnemiesThread extends Thread{
     // Contructors //
     /////////////////
     
-    public EnemiesThread(EnemyTank enemyTank, GameController refController){
-        this.enemy = enemyTank;
+    public ShellEnemThread(long fireRate, Shell shell, EnumDirection dir, GameController refController){
+        this.shell = shell;
         this.refController = refController;
+        this.dir = dir;
+        this.fireRate = fireRate;
     }
     
     
-    
-    
+
+        
     /////////////
     // Methods //
     /////////////   
@@ -40,21 +46,15 @@ public class EnemiesThread extends Thread{
     public void run(){
         while (isRunning){
             try{
-                refController.enemyEvents(enemy);
-                sleep(enemy.getTankVel());
+                refController.moveEnemyShell(this, shell, dir, shell.getPosX(), shell.getPosY());
+                sleep(fireRate);
             } catch (InterruptedException ex) {
                 Logger.getLogger(EnemiesThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
+    } 
+
     public void setIsRunning(boolean isRunning) {
         this.isRunning = isRunning;
-    }
-
-    public EnemyTank getEnemy() {
-        return enemy;
-    }
-    
-    
+    }    
 }

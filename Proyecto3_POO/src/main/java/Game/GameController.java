@@ -1,7 +1,12 @@
 
 package Game;
 
+import Bonus.BombBonus;
+import Bonus.ReinforceBonus;
 import Bonus.ShieldBonus;
+import Bonus.StarBonus;
+import Bonus.TankBonus;
+import Bonus.TimeBonus;
 import Commands.FireCommand;
 import Commands.MoveDownCommand;
 import Commands.MoveLeftCommand;
@@ -18,7 +23,6 @@ import Prototypes.Bush;
 import Prototypes.Eagle;
 import Interfaces.IObserver;
 import Interfaces.IStrategy;
-import Prototypes.Enemy;
 import Prototypes.EnemyTank;
 import Prototypes.MetalBrick;
 import Prototypes.PlayerTank;
@@ -27,6 +31,7 @@ import Prototypes.TankTypeEnum;
 import Prototypes.Water;
 import Threads.EnemiesThread;
 import Threads.EnemySpawnThread;
+import Threads.ShellEnemThread;
 import Threads.ShellThread;
 import java.awt.Color;
 import java.awt.Component;
@@ -34,6 +39,8 @@ import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -64,6 +71,7 @@ public class GameController implements KeyListener, IObserver{
     private int currentEnemiesCount = 0;
     private static final String[] tankTypes = {"SimpleTank", "FastTank", "PowerTank", "TankTank"};
     private static final int[][] spawnPoints = {{0, 1}, {0, 8}, {0, 15}};
+    private static final String[] bonusTypes = {"Bomb", "Reinforce", "Shield", "Star", "Tank", "Time"};
 
     
     
@@ -83,6 +91,7 @@ public class GameController implements KeyListener, IObserver{
     private ArrayList<Bush> bushesArray;
     private Eagle eagle;
     private ArrayList<Water> waterArray;
+    private ArrayList<Bonus> bonusArray;
     ///////////////////////////////////////////////////////////////////////////////////
     
     
@@ -125,6 +134,8 @@ public class GameController implements KeyListener, IObserver{
         metalBricksArray = new ArrayList<MetalBrick>();
         bushesArray = new ArrayList<Bush>();
         waterArray = new ArrayList<Water>();
+        bonusArray = new ArrayList<Bonus>();
+        
         
         keyMappings.put(KeyEvent.VK_W, new MoveUpCommand());
         keyMappings.put(KeyEvent.VK_A, new MoveLeftCommand());
@@ -200,12 +211,12 @@ public class GameController implements KeyListener, IObserver{
             for (int i = 0; i < levelMap.length; i++) {
                 for (int j = 0; j < levelMap[i].length; j++) {
                     int cellType = levelMap[i][j];
-                    if(cellType == 2)
+
                     // Colocar los elementos del mapa en el tablero según el tipo de celda
                     switch (cellType) {
                         case 1:
-                            Eagle eagle = new Eagle(i, j);
-                            placeEagle(i, j, eagle);
+                            Eagle eagle1 = new Eagle(i, j);
+                            placeEagle(i, j, eagle1);
                             break;
                         case 2:
                             Brick brick = new Brick(i, j);
@@ -230,6 +241,7 @@ public class GameController implements KeyListener, IObserver{
         
                
         // Spawns the player in game
+        spawnBonuses();
         ImageIcon image = new ImageIcon("Images\\playerUp.png");
         drawPlayerTank(10, 8, image);
         startEnemySpawning();
@@ -240,7 +252,42 @@ public class GameController implements KeyListener, IObserver{
         PassLevel next = new PassLevel(level);
         next.setVisible(true);
     }
+    
+    public void spawnBonuses(){
+        
+        ArrayList<String> bonusTypesList = new ArrayList<>(Arrays.asList(bonusTypes));
 
+        // Mezclar aleatoriamente los tipos de bonificaciones
+        Collections.shuffle(bonusTypesList);
+
+        // Tomar los primeros cuatro tipos mezclados para colocar las bonificaciones
+        for (int i = 0; i < 4; i++) {
+            String bonusType = bonusTypesList.get(i);
+
+            // Obtener posiciones aleatorias para colocar las bonificaciones
+            int[] randomCoordinates = getRandomCoordinates();
+            int randomX = randomCoordinates[1];
+            int randomY = randomCoordinates[0];
+
+            // Verificar si ya hay una bonificación en esa posición
+            System.out.println(""+ randomY+ " "+ randomX);
+            while (getCellType(randomX, randomY) != -1) {
+                randomCoordinates = getRandomCoordinates();
+                randomX = randomCoordinates[1];
+                randomY = randomCoordinates[0];
+            }       
+            
+            placeBonus(randomX, randomY, bonusType);
+        }        
+    }   
+    
+    private int[] getRandomCoordinates() {
+        int[] coordinates = new int[2];
+        coordinates[0] = (int) (Math.random() * 16); // Generar una coordenada Y aleatoria (entre 0 y 12)
+        coordinates[1] = (int) (Math.random() * 12); // Generar una coordenada X aleatoria (entre 0 y 16)
+        return coordinates;
+    }
+    
     public int getCurrentEnemiesCount() {
         return currentEnemiesCount;
     }
@@ -266,8 +313,9 @@ public class GameController implements KeyListener, IObserver{
         String rand = getRandomEnemyType();
         EnemyTank enemyTank = (EnemyTank)PrototypeFactory.getPrototype(rand);
         enemiesArray.add(enemyTank);
-        EnemiesThread et = new EnemiesThread(enemyTank);
+        EnemiesThread et = new EnemiesThread(enemyTank, this);
         enemThreadArray.add(et);
+        et.start();
         
         int[] spawnPosition = getRandomSpawnPosition();
 
@@ -308,7 +356,6 @@ public class GameController implements KeyListener, IObserver{
         enemy.setLabel(lblEnemyTank);
         enemy.setPosX(posX);
         enemy.setPosY(posY);
-        System.out.println(""+ posX + " "+ posY);
         boardCells[posX][posY].add(lblEnemyTank);
         gameView.pnlGame.revalidate();        
     }
@@ -343,6 +390,39 @@ public class GameController implements KeyListener, IObserver{
         boardCells[posX][posY].add(lblShell); // Coloca en la nueva posición
         gameView.pnlGame.revalidate();        
     }
+    
+    public void placeBonus(int posX, int posY, String type){ 
+        ImageIcon icon = null;
+        switch(type){
+            case "Bomb":
+                icon = new ImageIcon("Images\\bomb.png");
+                break;
+            case "Reinforce":
+                icon = new ImageIcon("Images\\shovel.png");
+                break;
+            case "Shield":
+                icon = new ImageIcon("Images\\helmet.png");
+                break;
+            case "Star":
+                icon = new ImageIcon("Images\\star.png");
+                break;
+            case "Tank":
+                icon = new ImageIcon("Images\\miniTank.png");
+                break;
+            case "Time":
+                icon = new ImageIcon("Images\\clock.png");
+                break;
+        }
+        JLabel lblBonus = new JLabel(icon);
+        lblBonus.setSize(64, 64);
+        lblBonus.setBackground(Color.BLACK);
+        lblBonus.setForeground(Color.BLACK);
+        Bonus bonus = new Bonus(type, posX, posY);
+        bonusArray.add(bonus);
+        bonus.setLabel(lblBonus);
+        boardCells[posX][posY].add(lblBonus); // Coloca en la nueva posición
+        gameView.pnlGame.revalidate();                
+    }   
     
     public void placeBrick(int posX, int posY, Brick brick){
         bricksArray.add(brick); 
@@ -458,8 +538,18 @@ public class GameController implements KeyListener, IObserver{
                     return 3; // Si coincide con un metalbrick
                 } else if (waterArray.stream().anyMatch(water -> water.getLabel() == lbl)) {
                     return 5; // Si coincide con agua
-                } else if (eagle.getLabel() == lbl) {
+                } else if(enemiesArray.stream().anyMatch(enemy -> enemy.getLabel() == lbl)){
+                    return 7;
+                } else if(playerTank.getLabel() == lbl){
+                    return 8;                    
+                }else if (eagle.getLabel() == lbl) {
                     return 1; // Si coincide con el águila
+                }else if (bushesArray.stream().anyMatch(bush -> bush.getLabel() == lbl)) {
+                    return 4; // Si coincide con el águila 
+                }else if (bonusArray.stream().anyMatch(bonus -> bonus.getLabel() == lbl)) {
+                    return 9; // Si coincide con el águila  
+                }else{
+                    return -1;
                 }
             }
         }
@@ -475,7 +565,23 @@ public class GameController implements KeyListener, IObserver{
         }
         return null;
     }
-
+    private Bonus findBonusAtPosition(int posX, int posY) {
+        for (Bonus bonus : bonusArray) {
+            if (bonus.getPosX() == posX && bonus.getPosY() == posY) {
+                return bonus;
+            }
+        }
+        return null;
+    }    
+    private EnemyTank findEnemyAtPosition(int posX, int posY) {
+        for (EnemyTank enem : enemiesArray) {
+            if (enem.getPosX() == posX && enem.getPosY() == posY) {
+                return enem;
+            }
+        }
+        return null;
+    }
+    
     private MetalBrick findMetalBrickAtPosition(int posX, int posY) {
         for (MetalBrick metalBrick : metalBricksArray) {
             if (metalBrick.getPosX() == posX && metalBrick.getPosY() == posY) {
@@ -493,13 +599,18 @@ public class GameController implements KeyListener, IObserver{
         }
         return null;
     }
-
+    private boolean checkBonusCollision(int posX, int posY){
+        // Verificar si hay colisión en la posición proporcionada
+        int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición   
+        
+        return cellType == 9;
+    }
     private boolean checkTankCollision(int posX, int posY){
         // Verificar si hay colisión en la posición proporcionada
         int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
 
         // Verificar si la celda es bloqueante (agua, ladrillo o ladrillo de metal)
-        return cellType == 1 || cellType == 2 || cellType == 3 || cellType == 5;
+        return cellType == 1 || cellType == 2 || cellType == 3 || cellType == 5 || cellType ==7 || cellType ==8;
     }
     
     private boolean checkShellCollision(int posX, int posY){
@@ -507,7 +618,7 @@ public class GameController implements KeyListener, IObserver{
         int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
 
         // Verificar si la celda es bloqueante (ladrillo o ladrillo de metal o aguila)
-        return cellType == 1 || cellType == 2 || cellType == 3;        
+        return cellType == 1 || cellType == 2 || cellType == 3 || cellType ==7 || cellType ==8;        
     }
     
     private void handleCollision(Shell shell, int posX, int posY) {
@@ -534,9 +645,68 @@ public class GameController implements KeyListener, IObserver{
                     }
                 }
                 break;
+            case 7: //Colisiona con enemigo
+                EnemyTank collidedEnemy = findEnemyAtPosition(posX, posY);
+                if (collidedEnemy != null) {
+                    System.out.println("Vida: " + collidedEnemy.getHp());
+                    collidedEnemy.decreaseHealth(); // Reducir la vida del enemigo
+                    System.out.println("Vida despues: " + collidedEnemy.getHp());
+                    if (collidedEnemy.getHp() <= 0) {
+                        for (EnemiesThread et : enemThreadArray){
+                            if(et.getEnemy() == collidedEnemy){
+                                et.setIsRunning(false);
+                            }
+                        }
+                        // Eliminar el enemigo del tablero y de la lista de ladrillos
+                        erasePreviousPosition(posX, posY, collidedEnemy.getLabel());
+                        enemiesArray.remove(collidedEnemy);
+                        playerTank.addKillObserver();
+                    }
+                }                
+                break;
 
         }
     }    
+    private void handleEnemyCollision(Shell shell, int posX, int posY) {
+        int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
+
+        switch (cellType) {
+            case 1:
+                if(eagle != null){
+                    eagle.decreaseHealth();
+                    if (eagle.getHp() <= 0) {
+                        // Eliminar el ladrillo del tablero y de la lista de ladrillos
+                        erasePreviousPosition(posX, posY, eagle.getLabel());
+                        finishedLevel();
+                    }                    
+                }
+            case 2: // Si colisiona con un ladrillo
+                Brick collidedBrick = findBrickAtPosition(posX, posY);
+                if (collidedBrick != null) {
+                    collidedBrick.decreaseHealth(); // Reducir la vida del ladrillo
+                    if (collidedBrick.getHp() <= 0) {
+                        // Eliminar el ladrillo del tablero y de la lista de ladrillos
+                        erasePreviousPosition(posX, posY, collidedBrick.getLabel());
+                        bricksArray.remove(collidedBrick);
+                    }
+                }
+                break;
+            case 8: //Colisiona con jugador
+                PlayerTank collidedPlayer = playerTank;
+                if (collidedPlayer != null) {
+                    System.out.println("Vida: " + collidedPlayer.getHp());
+                    collidedPlayer.lesslifes(); // Reducir la vida del jugador
+                    System.out.println("Vida despues: " + collidedPlayer.getHp());
+                    if (collidedPlayer.getHp() <= 0) {
+                        // Eliminar el jugador
+                        erasePreviousPosition(posX, posY, collidedPlayer.getLabel());
+                        finishedLevel();
+                    }
+                }                
+                break;
+
+        }
+    }  
     
     public void movePlayerTank(int deltaX, int deltaY, ImageIcon icon, EnumDirection dir){ 
         if(playerTank.canMove()){ // Verifies movement cooldown
@@ -547,6 +717,38 @@ public class GameController implements KeyListener, IObserver{
 
             if (inBounds(posX, posY)){ // Verificar los límites del tablero
                 if (!checkTankCollision(posX, posY)) { // Verificar la colisión
+                    if(checkBonusCollision(posX, posY)){
+                        Bonus bonus = findBonusAtPosition(posX, posY);
+                        erasePreviousPosition(posX, posY, bonus.getLabel());
+                        String type = bonus.getType();
+                        System.out.println(""+ bonus.getType());
+                        
+                        IStrategy stratBonus = null;
+                        switch(type){
+                            case "Bomb":
+                                 stratBonus = new BombBonus();
+                                break;
+                            case "Reinforce":
+                                 stratBonus = new ReinforceBonus();
+                                break;
+                            case "Shield":
+                                stratBonus = new ShieldBonus();
+                                break;
+                            case "Star":
+                                 stratBonus = new StarBonus();
+                                break;
+                            case "Tank":
+                                 stratBonus = new TankBonus();
+                                break;
+                            case "Time":
+                                 stratBonus = new TimeBonus();
+                                break;
+                        }
+
+                        addBonusStrategy(stratBonus);
+                        applyBonusesToGame();
+                    }
+                    
                     erasePreviousPosition(playerTank.getPosX(), playerTank.getPosY(), playerTank.getLabel()); // Eliminar la posición anterior
 
                     playerTank.setPosX(posX);
@@ -561,6 +763,122 @@ public class GameController implements KeyListener, IObserver{
                 }
             } 
         }
+    }
+
+    public enum Direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    }
+    
+    public EnumDirection pathFinding(EnemyTank enem) {
+        int dx = enem.getPosX() - 12;
+        int dy = enem.getPosY() - 8;
+        EnumDirection initialDirection;
+
+        // Compara las diferencias en las coordenadas para determinar la dirección
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) {
+                initialDirection = UP; // Si dx es positivo, mueve hacia arriba
+            } else {
+                initialDirection = DOWN; // Si dx es negativo, mueve hacia abajo
+            }
+        } else {
+            if (dy > 0) {
+                initialDirection = LEFT; // Si dy es positivo, mueve hacia la izquierda
+            } else {
+                initialDirection = RIGHT; // Si dy es negativo, mueve hacia la derecha
+            }
+        }
+
+        // Intenta moverse en la dirección calculada inicialmente
+        if (canMoveInDirection(enem, initialDirection)) {
+            return initialDirection; // Si puede moverse, retorna la dirección inicial
+        } else {
+            // Si no puede moverse en la dirección inicial, elige una dirección aleatoria entre las disponibles
+            EnumDirection[] directions = {UP, DOWN, LEFT, RIGHT};
+            Random random = new Random();
+            EnumDirection randomDirection;
+
+            do {
+                randomDirection = directions[random.nextInt(directions.length)];
+            } while (randomDirection == initialDirection || !canMoveInDirection(enem, randomDirection));
+
+            return randomDirection; // Retorna una dirección aleatoria diferente a la inicial
+        }
+    }
+
+    // Función para verificar si se puede mover en una dirección específica
+    private boolean canMoveInDirection(EnemyTank enem, EnumDirection direction) {
+        int posX = enem.getPosX();
+        int posY = enem.getPosY();
+
+        switch (direction) {
+            case UP:
+                posX--;
+                break;
+            case DOWN:
+                posX++;
+                break;
+            case LEFT:
+                posY--;
+                break;
+            case RIGHT:
+                posY++;
+                break;
+        }
+
+        return inBounds(posX, posY) && !checkTankCollision(posX, posY);
+    }
+    
+    // Función para calcular la distancia entre dos puntos en un tablero
+    private double calculateDistance(int x1, int y1, int x2, int y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }  
+    
+    public void moveEnemyTank(EnemyTank enem){ 
+        long currentTime = System.currentTimeMillis(); // Obtener el tiempo actual
+        
+        EnumDirection dir = pathFinding(enem);
+        enem.setDir(dir); // Sets the new direction the tank is facing and icon
+        
+        int posX = enem.getPosX();
+        int posY = enem.getPosY();        
+        switch(dir){
+            case UP:
+                posX--;
+                break;
+            case DOWN:
+                posX++;
+                break;
+            case LEFT:
+                posY--;
+                break;
+            case RIGHT:
+                posY++;
+                break;            
+        }
+        
+        double distanceToEagle = calculateDistance(posX, posY, eagle.getPosX(), eagle.getPosY());
+        double distanceToPlayer = calculateDistance(posX, posY, playerTank.getPosX(), playerTank.getPosY());
+        if ((distanceToEagle <= 3 || distanceToPlayer <= 4)&& (currentTime - enem.getLastFireTime() >= enem.getFireRate())) {
+            fireShellEnemy(enem);
+            enem.setLastFireTime(currentTime); // Actualizar el tiempo del último disparo
+            return;
+        }
+        if (inBounds(posX, posY)){ // Verificar los límites del tablero
+            if (!checkTankCollision(posX, posY)) { // Verificar la colisión
+                
+                
+                erasePreviousPosition(enem.getPosX(), enem.getPosY(), enem.getLabel()); // Eliminar la posición anterior
+
+                enem.setPosX(posX);
+                enem.setPosY(posY);
+
+                drawEnemyTank(posX, posY, enem.getIcon(), enem); // Dibujar el tanque en el tablero
+            }
+        }      
     }
     
     public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, int posY) {
@@ -623,26 +941,76 @@ public class GameController implements KeyListener, IObserver{
         }
     }
     
+    public void moveEnemyShell(ShellEnemThread st, Shell shell, EnumDirection dir, int posX, int posY) {
+
+        ImageIcon icon = null;
+        int nextPosX = posX;
+        int nextPosY = posY;
+
+        switch (dir) {
+            case UP:
+                icon = new ImageIcon("Images\\bulletUp.png");
+                nextPosX = posX - 1;
+                nextPosY = posY;
+                break;
+            case DOWN:
+                icon = new ImageIcon("Images\\bulletDown.png");
+                nextPosX = posX + 1;
+                nextPosY = posY;
+                break;
+            case LEFT:
+                icon = new ImageIcon("Images\\bulletLeft.png");
+                nextPosX = posX;
+                nextPosY = posY - 1;
+                break;
+            case RIGHT:
+                icon = new ImageIcon("Images\\bulletRight.png");
+                nextPosX = posX;
+                nextPosY = posY + 1;
+                break;
+        }
+
+        if (!inBounds(nextPosX, nextPosY)) {
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            System.out.println("Salio");
+            return;
+        }
+
+        // Verificar si hay colisión en la próxima posición
+        if (checkShellCollision(nextPosX, nextPosY)) {
+            handleEnemyCollision(shell, nextPosX, nextPosY);
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            return;
+        }
+
+        // Mover la bala a la próxima posición
+        shell.setPosX(nextPosX);
+        shell.setPosY(nextPosY);
+
+        if (inBounds(shell.getPosX(), shell.getPosY())) {
+            if (shell.getLabel() != null) {
+                erasePreviousPosition(posX, posY, shell.getLabel());
+            }
+            drawShell(shell, shell.getPosX(), shell.getPosY(), icon);
+        } else {
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            System.out.println("Salio");
+        }
+    }
+
     public void fireShellPlayer(){
         Shell shell = new Shell(playerTank.getPosX(), playerTank.getPosY());
         ShellThread st = new ShellThread(playerTank.getFireRate(), shell, playerTank.getDir(), this);    
         st.start(); // Init shell thread
     }
     
-    public void fireShellSimple(){
-        //Shell shell = new Shell();
-        //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
-        //st.start(); // Init shell thread
-    }
-    
-    public void fireShellFast(){
-        //Shell shell = new Shell();
-        //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
-    }
-    
-    public void fireShellPower(){
-        //Shell shell = new Shell();
-        //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
+    public void fireShellEnemy(EnemyTank enemy){
+        Shell shell = new Shell(enemy.getPosX(), enemy.getPosY());
+        ShellEnemThread st = new ShellEnemThread(enemy.getFireRate(), shell, enemy.getDir(), this);    
+        st.start(); // Init shell thread
     }
     
     public void addBonusStrategy(IStrategy bonusStrategy) {
@@ -728,12 +1096,10 @@ public class GameController implements KeyListener, IObserver{
     public void pauseGame(){
         gameView.pauseGame();
     }
-    public void moveEnemyTank(){
-        
-    }
+
     
-    public void enemyEvents(JLabel lbl){
-        
+    public void enemyEvents(EnemyTank enemy){
+        moveEnemyTank(enemy);
     }
     
     @Override
