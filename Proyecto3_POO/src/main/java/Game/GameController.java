@@ -150,15 +150,15 @@ public class GameController implements KeyListener, IObserver{
         
         playerTank = new PlayerTank("PlayerTank", config,this);
         playerTank.setDir(EnumDirection.UP);
-        //SimpleTank simpleTank = new SimpleTank("SimpleTank");
-        //FastTank fastTank = new FastTank("FastTank");
-        //PowerTank powerTank = new PowerTank("PowerTank");
-        //TankTank tankTank = new TankTank("TankTank");
-        //PrototypeFactory.addPrototype(playerTank.getId(), playerTank);
-        //PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
-        //PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
-        //PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
-        //PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
+        SimpleTank simpleTank = new SimpleTank("SimpleTank", config);
+        FastTank fastTank = new FastTank("FastTank", config);
+        PowerTank powerTank = new PowerTank("PowerTank", config);
+        TankTank tankTank = new TankTank("TankTank", config);
+
+        PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
+        PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
+        PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
+        PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
         enableNxtLevelBtn();
     }
 

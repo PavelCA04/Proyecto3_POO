@@ -30,7 +30,7 @@ public class PlayerTank implements Tank, IObservable{
     
     public PlayerTank(){       
     }
-    public PlayerTank(String id, Config config,GameController controller) {
+    public PlayerTank(String id, Config config, GameController controller) {
         this();
         this.id = id;        
         this.hp = 3;

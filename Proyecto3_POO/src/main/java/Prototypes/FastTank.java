@@ -1,43 +1,54 @@
 
 package Prototypes;
 
+import Game.Config;
+
 
 public class FastTank extends Enemy implements Tank {
     
-    private int hp;
-    private int tankVel;
-    private int shellVel;    
-    
+    private Config config;  
+    int hp;
+    private long tankVel;
+    private long fireRate;    
     
     
 
-    public FastTank(String id, int posX, int posY) {
-        super(id, posX, posY);
+    public FastTank(String id, Config config) {
+        super(id);
         this.hp = 1;
-        this.tankVel = 5;
-        this.shellVel = 10;
+        this.config = config;
+        this.tankVel = config.getFastTankSpeed();
+        this.fireRate = config.getFastTankFireRate();
     }
     
     
     
-    
-    
+        
     @Override
     public Tank clone() {
-        return new FastTank(this.id, this.posX, this.posY);
+        return new FastTank(this.id, this.config);
     }
+    
     @Override
     public Tank deepClone() {
         return clone();    
     }    
-
+    
     @Override
     public int getResistance() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    public String getId() {
-        return id;
+    public int getHp() {
+        return hp;
+    }
+
+    public long getTankVel() {
+        return tankVel;
+    }
+
+    public long getFireRate() {
+        return fireRate;
     }
     
 }

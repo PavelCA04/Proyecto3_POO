@@ -1,27 +1,26 @@
 
 package Prototypes;
 
+import Game.Config;
 
-public class TankTank implements Tank{
-    private String id;
-    private int posX, posY;
-    private int hp;
-    private int tankVel;
-    private int shellVel;
+
+public class TankTank extends Enemy implements Tank{
+    
+    private Config config;  
+    int hp;
+    private long tankVel;
+    private long fireRate;  
+
     
     
-    
-    
-    public TankTank(){
-    }
-    public TankTank(String id, int posX, int posY) {
-        this();
-        this.id = id;
-        this.posX = posX;
-        this.posY = posY;        
+   
+
+    public TankTank(String id, Config config) {
+        super(id);        
         this.hp = 4;
-        this.tankVel = 5;
-        this.shellVel = 10;
+        this.config = config;
+        this.tankVel = config.getTankTankSpeed();
+        this.fireRate = config.getTankTankFireRate(); 
     }
 
 
@@ -29,20 +28,29 @@ public class TankTank implements Tank{
 
     @Override
     public Tank clone() {
-        return new FastTank(this.id, this.posX, this.posY);
+        return new FastTank(this.id, this.config);
     }
+    
     @Override
     public Tank deepClone() {
         return clone();    
-    }       
-
+    }    
+    
     @Override
     public int getResistance() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    public String getId() {
-        return id;
+    public int getHp() {
+        return hp;
+    }
+
+    public long getTankVel() {
+        return tankVel;
+    }
+
+    public long getFireRate() {
+        return fireRate;
     }
 
 

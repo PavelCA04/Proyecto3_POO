@@ -1,24 +1,23 @@
 
 package Prototypes;
 
+import Game.Config;
+import Game.EnumDirection;
 import javax.swing.JLabel;
 
 
 public abstract class Enemy {
     
     public String id;
+    private Config config;
+    private EnumDirection dir;
     public int posX, posY;
-    public int hp;
-    public int tankVel;
-    public int shellVel;
     JLabel label;
     
-    public Enemy(String id, int posX, int posY){
-        this.id = id;
-        this.posX = posX;
-        this.posY = posY;      
+    public Enemy(String id){
+        this.id = id;  
     }
-
+    
     public String getId() {
         return id;
     }
@@ -31,22 +30,14 @@ public abstract class Enemy {
         return posY;
     }
 
-    public int getHp() {
-        return hp;
-    }
-
-    public int getTankVel() {
-        return tankVel;
-    }
-
-    public int getShellVel() {
-        return shellVel;
+    public EnumDirection getDir() {
+        return dir;
     }
 
     public JLabel getLabel() {
         return label;
     }
-
+    
     public void setId(String id) {
         this.id = id;
     }
@@ -59,21 +50,11 @@ public abstract class Enemy {
         this.posY = posY;
     }
 
-    public void setHp(int hp) {
-        this.hp = hp;
+    public void setLabel(JLabel lbl) {
+        this.label = lbl;
     }
 
-    public void setTankVel(int tankVel) {
-        this.tankVel = tankVel;
-    }
-
-    public void setShellVel(int shellVel) {
-        this.shellVel = shellVel;
-    }
-
-    public void setLabel(JLabel label) {
-        this.label = label;
-    }
-    
-    
+    public void setDir(EnumDirection dir) {
+        this.dir = dir;
+    }   
 }
