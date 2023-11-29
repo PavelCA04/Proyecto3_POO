@@ -1,6 +1,9 @@
 
 package Game;
 
+import Bonus.ShieldBonus;
+import Bonus.StarBonus;
+import Bonus.TankBonus;
 import Commands.FireCommand;
 import Commands.MoveDownCommand;
 import Commands.MoveLeftCommand;
@@ -12,6 +15,8 @@ import Prototypes.Brick;
 import Prototypes.Bush;
 import Prototypes.Eagle;
 import Interfaces.IObserver;
+import Interfaces.IStrategy;
+import Prototypes.Enemy;
 import Prototypes.FastTank;
 import Prototypes.MetalBrick;
 import Prototypes.PlayerTank;
@@ -53,6 +58,7 @@ public class GameController implements KeyListener, IObserver{
 
     private GameWindow gameView;
     private final Map<Integer, ICommand> keyMappings;
+    private IStrategy bonusStrategy;
     
     private Config config; // Singleton configuration
     private static final int Sprite_Size = 64;
@@ -63,6 +69,7 @@ public class GameController implements KeyListener, IObserver{
     
     
     //////////////////////////////// Threads in game //////////////////////////////////
+    private ArrayList<IStrategy> bonusStrategies;
     private ArrayList<EnemiesThread> enemThreadArray; // thread array de enemigos
     private ArrayList<ShellThread> shellThreads; // array de disparos
     ///////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +92,7 @@ public class GameController implements KeyListener, IObserver{
     private int shotsfired;
     private int killedTank;
     private int bonusLevel;
+    private int playerLife;
     ///////////////////////////////////////////////////////////////////////////////////
     
     
@@ -105,9 +113,11 @@ public class GameController implements KeyListener, IObserver{
         this.shotsfired = 0;
         this.killedTank = 0;
         this.bonusLevel = 0;
+        this.playerLife = 3;
         
         enemThreadArray = new ArrayList<EnemiesThread>();
         shellThreads = new ArrayList<ShellThread>();
+        bonusStrategies = new ArrayList<>();
         
         bricksArray = new ArrayList<Brick>();
         metalBricksArray = new ArrayList<MetalBrick>();
@@ -354,6 +364,7 @@ public class GameController implements KeyListener, IObserver{
         }
     }
     
+    
     private boolean inBounds(int posX, int posY){
         return posX >= 0 && posX < Height && posY >= 0 && posY < 17;
     }
@@ -435,6 +446,7 @@ public class GameController implements KeyListener, IObserver{
                     if (eagle.getHp() <= 0) {
                         // Eliminar el ladrillo del tablero y de la lista de ladrillos
                         erasePreviousPosition(posX, posY, eagle.getLabel());
+                        finishedLevel();
                     }                    
                 }
             case 2: // Si colisiona con un ladrillo
@@ -470,6 +482,8 @@ public class GameController implements KeyListener, IObserver{
 
                     // Actualizar el tiempo del último movimiento
                     playerTank.updateLastMoveTime();
+                    //pruebaShieldBonus();
+                    //finishedLevel();
                 }
             } 
         }
@@ -558,17 +572,75 @@ public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, 
         //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
     }
     
+    public void addBonusStrategy(IStrategy bonusStrategy) {
+        bonusStrategies.add(bonusStrategy);
+        playerTank.addbonusobserver();
+    }
+    
+    public void pruebaShieldBonus(){ //Base para que sepa como va
+        IStrategy shieldBonus = new ShieldBonus();
+        System.out.println("new shieldbonus");
+        addBonusStrategy(shieldBonus);
+        applyBonusesToGame();
+    }
+    
+    public void applyBonusesToGame() {
+        for (IStrategy bonusStrategy : bonusStrategies) {
+            bonusStrategy.applyBonus(this);
+        }
+        bonusStrategies.clear(); // Clear the list after applying bonuses
+    }
+    
+    public void killEnemies(){
+       /* for (EnemiesThread enemyThread : enemThreadArray) {
+            Enemy enemy = enemyThread.getEnemy;
+            enemy.setHp(0);
+            playerTank.addKillObserver();
+        }
+        finishedLevel();*/
+    }
+    
+    public void finishedLevel(){
+        gameView.finishLevel();
+    }
+        
+    public void protectBase(){
+        
+    }
+    
+    public void protectTank(){
+        playerTank.protectTank();
+    }
+    
+    public void increaseShooting(){
+        //playerTank.setFireRate(playerTank.getFireRate()+1000);
+    }
+    
+    public void increaseTankSpeed(){
+       // playerTank.setTankVel((playerTank.getTankVel()+1000000000));
+    }
+    
+    public void pauseEnemies(){
+        // Pausar 10 seg el thread de enemigos
+    }
+    
     public void fireShellTank(){
         //Shell shell = new Shell();
         //ShellThread st = new ShellThread(shell, EnumDirection.UP, Width, Width, this);
     }
+    
     public void enableNxtLevelBtn() {
     if (level < 8) {
         gameView.setNxtLvlbtn();
     } else {
         gameView.setNxtLvlbtnfalse();
+        }
     }
-}
+    
+    public void updateLifesLabel(){
+        gameView.getPlayersLife().setText("Players Life : " + playerTank.getHp());
+    }
+    
     public void updateShotsLabel(){
         gameView.getShotsFiredLabel().setText("Shots fired : " + shotsfired);
     }
@@ -615,10 +687,8 @@ public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, 
     @Override
     public void notifyObserver(String command, Object source) {
         if (command.equals("fired")) {
-            System.out.println("SocialMedia.Celebrity.notifyAllFollowers()");
             shotsfired ++;
-            updateShotsLabel();
-            
+            updateShotsLabel(); 
             }        
         if (command.equals("killedTank")) {
             System.out.println("Killed Tank");
@@ -626,13 +696,14 @@ public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, 
             updateKilledTanksLabel();
         }
         if (command.equals("bonus")) {
-            System.out.println("Game.GameController.notifyObserver()");
             bonusLevel++;
             updateBonusLabel();
         }
         if (command.equals("pause")) {
-            System.out.println("Game.GameController.notifyObserver()");
             pauseGame();
+        }
+        if (command.equals("lifes")) {
+            updateLifesLabel();
         }
     }
 }

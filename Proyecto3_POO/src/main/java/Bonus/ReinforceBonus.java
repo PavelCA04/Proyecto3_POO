@@ -4,6 +4,7 @@
  */
 package Bonus;
 
+import Game.GameController;
 import Interfaces.IStrategy;
 
 /**
@@ -12,8 +13,8 @@ import Interfaces.IStrategy;
  */
 public class ReinforceBonus implements IStrategy {
     @Override
-    public void applyBonus() {
+    public void applyBonus(GameController gamecontroller) {
         System.out.println("Pala Bonus: Base is protected with metal for 20 seconds");
-        // Implementation of protecting the base with metal
+        gamecontroller.protectBase();
     } 
 }

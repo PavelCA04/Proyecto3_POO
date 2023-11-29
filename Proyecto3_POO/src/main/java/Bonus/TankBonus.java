@@ -4,6 +4,7 @@
  */
 package Bonus;
 
+import Game.GameController;
 import Interfaces.IStrategy;
 
 /**
@@ -12,8 +13,9 @@ import Interfaces.IStrategy;
  */
 public class TankBonus implements IStrategy {
     @Override
-    public void applyBonus() {
+    public void applyBonus(GameController gamecontroller) {
         System.out.println("Tanque Bonus: Tank moves faster");
         // Implementation of increasing tank speed
+        gamecontroller.increaseTankSpeed();
     }
 }

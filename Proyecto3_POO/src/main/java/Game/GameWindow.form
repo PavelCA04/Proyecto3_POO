@@ -99,6 +99,7 @@
                                   <Component id="ShotsFiredLabel" alignment="0" max="32767" attributes="0"/>
                                   <Component id="KilledTanksLabel" alignment="0" max="32767" attributes="0"/>
                                   <Component id="BonusLabel" alignment="0" pref="192" max="32767" attributes="0"/>
+                                  <Component id="PlayersLife" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -123,9 +124,11 @@
                   <Component id="btnNextLevel" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="btnFinishGame" min="-2" pref="40" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
+                  <Component id="PlayersLife" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="ShotsFiredLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="84" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
                   <Component id="KilledTanksLabel" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="103" max="-2" attributes="0"/>
                   <Component id="BonusLabel" min="-2" max="-2" attributes="0"/>
@@ -184,6 +187,14 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnFinishGameActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="PlayersLife">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Source Sans Pro" size="18" style="1"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Player&apos;s Life : 3"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

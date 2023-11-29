@@ -4,6 +4,7 @@
  */
 package Bonus;
 
+import Game.GameController;
 import Interfaces.IStrategy;
 
 /**
@@ -12,9 +13,9 @@ import Interfaces.IStrategy;
  */
 public class BombBonus implements IStrategy {
     @Override
-    public void applyBonus() {
+    public void applyBonus(GameController gamecontroller) {
         System.out.println("Bomba Bonus: Destroy all enemies on the screen");
         // Implementation of destroying all enemies
-        //Recorrer el thread y set la vida a 0;
+        gamecontroller.killEnemies();
     }
 }

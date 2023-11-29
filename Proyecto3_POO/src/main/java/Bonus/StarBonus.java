@@ -4,6 +4,7 @@
  */
 package Bonus;
 
+import Game.GameController;
 import Interfaces.IStrategy;
 
 /**
@@ -12,8 +13,8 @@ import Interfaces.IStrategy;
  */
 public class StarBonus implements IStrategy {
     @Override
-    public void applyBonus() {
+    public void applyBonus(GameController gamecontroller) {
         System.out.println("Estrella Bonus: Tank shoots faster");
-        // Incrementar la velocidad
+        gamecontroller.increaseShooting();
     }  
 }

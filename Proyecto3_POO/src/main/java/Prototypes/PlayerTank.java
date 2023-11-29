@@ -8,6 +8,8 @@ import Interfaces.IObservable;
 import Interfaces.IObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JLabel;
 
 
@@ -26,6 +28,8 @@ public class PlayerTank implements Tank, IObservable{
     private long lastMoveTime;
     private long lastFireTime;
     private GameController controller;
+    private boolean invincible;
+    private Timer invincibilityTimer;
     
     
     public PlayerTank(){       
@@ -37,9 +41,11 @@ public class PlayerTank implements Tank, IObservable{
         this.tankVel = config.getPlayerMovementSpeed();
         this.fireRate = config.getPlayerFireRate();
         this.controller = controller;
+        this.invincible = false;
         addObserver(controller);
         lastMoveTime = System.currentTimeMillis(); // Inicializa lastMoveTime con el tiempo actual
         lastFireTime = System.currentTimeMillis(); // Inicializa lastFireTime con el tiempo actual
+        this.invincibilityTimer = new Timer();
     }
     
     
@@ -61,7 +67,6 @@ public class PlayerTank implements Tank, IObservable{
     public boolean canMove() {
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - lastMoveTime;
-        pruebaObserver();
 
         return elapsedTime >= tankVel; // Devuelve true si ha pasado suficiente tiempo
     }
@@ -69,7 +74,10 @@ public class PlayerTank implements Tank, IObservable{
     public void updateLastMoveTime() {
         lastMoveTime = System.currentTimeMillis(); // Actualiza el tiempo del último movimiento
     }
-    
+    public void lesslifes(){
+        hp--;
+        updateLifes();
+    }
     public boolean canFire(){
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - lastMoveTime;//Creo que aqui va lastfiretime
@@ -80,11 +88,49 @@ public class PlayerTank implements Tank, IObservable{
     public void updateLastFireTime() {
         lastFireTime = System.currentTimeMillis(); // Actualiza el tiempo del último movimiento
     }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
+
+        if (invincible) {
+            scheduleInvincibilityTimer();
+            System.out.println("Prototypes.PlayerTank.setInvincible()");
+        } else {
+            cancelInvincibilityTimer();
+        }
+    }
+    
+    private void scheduleInvincibilityTimer() {
+        invincibilityTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                setInvincible(false); // Turn off invincibility after 10 seconds
+                System.out.println("turned off");
+            }
+        }, 10000); // 10 seconds in milliseconds
+    }
+    
+    public void protectTank() {
+        setInvincible(true);
+    }
+    
+    private void cancelInvincibilityTimer() {
+        invincibilityTimer.cancel();
+        invincibilityTimer = new Timer(); // Create a new Timer for future use
+    }
     
     public Config getConfig() {
         return config;
     }
 
+    public void setFireRate(long fireRate) {
+        this.fireRate = fireRate;
+    }
+    
     public long getFireRate() {
         return fireRate;
     }
@@ -137,7 +183,7 @@ public class PlayerTank implements Tank, IObservable{
         this.hp = hp;
     }
 
-    public void setTankVel(int tankVel) {
+    public void setTankVel(long tankVel) {
         this.tankVel = tankVel;
     }
 
@@ -152,8 +198,15 @@ public class PlayerTank implements Tank, IObservable{
     public void setDir(EnumDirection dir) {
         this.dir = dir;
     }
-    public void pruebaObserver(){
+    
+    public void addbonusobserver(){
         notifyAllObservers("bonus", this);
+    }
+    public void addKillObserver(){
+        notifyAllObservers("killedTank", this);
+    }
+    public void updateLifes(){
+        notifyAllObservers("lifes", score);
     }
 
    @Override

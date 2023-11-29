@@ -36,6 +36,7 @@ public class GameWindow extends javax.swing.JFrame {
         BonusLabel = new javax.swing.JLabel();
         LvlLabel = new javax.swing.JLabel();
         btnFinishGame = new javax.swing.JButton();
+        PlayersLife = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -86,6 +87,9 @@ public class GameWindow extends javax.swing.JFrame {
             }
         });
 
+        PlayersLife.setFont(new java.awt.Font("Source Sans Pro", 1, 18)); // NOI18N
+        PlayersLife.setText("Player's Life : 3");
+
         javax.swing.GroupLayout pnlStatsLayout = new javax.swing.GroupLayout(pnlStats);
         pnlStats.setLayout(pnlStatsLayout);
         pnlStatsLayout.setHorizontalGroup(
@@ -99,7 +103,8 @@ public class GameWindow extends javax.swing.JFrame {
                             .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(ShotsFiredLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(KilledTanksLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(BonusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))))
+                                .addComponent(BonusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                                .addComponent(PlayersLife, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(pnlStatsLayout.createSequentialGroup()
                         .addGap(87, 87, 87)
                         .addGroup(pnlStatsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -116,9 +121,11 @@ public class GameWindow extends javax.swing.JFrame {
                 .addComponent(btnNextLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50)
                 .addComponent(btnFinishGame, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
+                .addGap(44, 44, 44)
+                .addComponent(PlayersLife)
+                .addGap(18, 18, 18)
                 .addComponent(ShotsFiredLabel)
-                .addGap(84, 84, 84)
+                .addGap(44, 44, 44)
                 .addComponent(KilledTanksLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(103, 103, 103)
                 .addComponent(BonusLabel)
@@ -146,6 +153,7 @@ public class GameWindow extends javax.swing.JFrame {
 
     private void btnNextLevelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextLevelActionPerformed
         gamecontroller.nextLevel();
+        this.dispose();
     }//GEN-LAST:event_btnNextLevelActionPerformed
 
     private void btnFinishGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinishGameActionPerformed
@@ -205,6 +213,14 @@ public class GameWindow extends javax.swing.JFrame {
         btnNextLevel.setEnabled(true);
     }
 
+    public JLabel getPlayersLife() {
+        return PlayersLife;
+    }
+
+    public void setPlayersLife(JLabel PlayersLife) {
+        this.PlayersLife = PlayersLife;
+    }
+    
     public JLabel getLvlLabel() {
         return LvlLabel;
     }
@@ -216,11 +232,38 @@ public class GameWindow extends javax.swing.JFrame {
     public JLabel getShotsFiredLabel() {
         return ShotsFiredLabel;
     }
+    
+    public void finishLevel() {
+        int result = JOptionPane.showOptionDialog(
+            this, 
+            "Level finished! What do you want to do?", 
+            "Level Complete",
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.QUESTION_MESSAGE, 
+            null, 
+            new Object[]{"Continue Level", "Quit Game"}, 
+            "Continue Level"); 
+
+        // Check the user's choice
+        if (result == JOptionPane.YES_OPTION) {
+            gamecontroller.nextLevel();
+            this.dispose();
+        } else {
+            Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    if (window instanceof JFrame) {
+                ((JFrame) window).dispose();
+                }
+            }
+        System.out.println("Se salió del juego exitosamente");
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel BonusLabel;
     private javax.swing.JLabel KilledTanksLabel;
     private javax.swing.JLabel LvlLabel;
+    private javax.swing.JLabel PlayersLife;
     private javax.swing.JLabel ShotsFiredLabel;
     private javax.swing.JButton btnFinishGame;
     private javax.swing.JButton btnNextLevel;

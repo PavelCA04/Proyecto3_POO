@@ -1,14 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
+
 package Interfaces;
 
-/**
- *
- * @author diego
- */
+import Game.GameController;
+
+
+
 public interface IStrategy {
     
-    void applyBonus();
+    void applyBonus(GameController gameController);
 }
