@@ -118,10 +118,6 @@ public class GameController implements KeyListener, IObserver{
         
         _init_();
         configureGamePanel();
-    
-        
-        
-        //drawPlayerTank(new PlayerTank());
     }  
     
 
@@ -174,13 +170,7 @@ public class GameController implements KeyListener, IObserver{
             }
         }
         
-        
-        
-        
-        
-        
-
-        
+                
         
         int[][] levelMap = LevelMaker.getLevelMap(level); // Obtener el mapa del nivel actual
         
@@ -216,19 +206,10 @@ public class GameController implements KeyListener, IObserver{
             }
         }    
         
-        
-        
-        
-        
+               
         // Spawns the player in game
         ImageIcon image = new ImageIcon("Images\\playerUp.png");
         drawPlayerTank(10, 8, image);       
-        
-        
-        
-        
-        //Eagle eagle = new Eagle(12, 8);
-        //placeEagle(12, 8, eagle);
     }
     
     public void nextLevel(){
@@ -349,19 +330,61 @@ public class GameController implements KeyListener, IObserver{
     }   
     
     public void erasePreviousPosition(int posX, int posY, JLabel lbl) {
-        // Obtén el JLabel en la posición anterior
-        Component[] components = boardCells[posX][posY].getComponents();
+        if (lbl != null) {
+            // Obtén el JLabel en la posición anterior
+            Component[] components = boardCells[posX][posY].getComponents();
 
-        // Verifica si hay componentes y si el primer componente es un JLabel
-        if (components.length > 0 && components[0] instanceof JLabel) {
-            boardCells[posX][posY].remove(lbl);
-            gameView.pnlGame.revalidate();
-            gameView.pnlGame.repaint();
+            // Verifica si hay componentes y si el primer componente es un JLabel
+            if (components.length > 0 && components[0] instanceof JLabel) {
+                boardCells[posX][posY].remove(lbl);
+                gameView.pnlGame.revalidate();
+                gameView.pnlGame.repaint();
+            }
         }
     }
     
     private boolean inBounds(int posX, int posY){
         return posX >= 0 && posX < Height && posY >= 0 && posY < 17;
+    }
+    
+    private int getCellType(int posX, int posY) {
+        JPanel cell = boardCells[posX][posY];
+
+        Component[] components = cell.getComponents();
+        for (Component component : components) {
+            if (component instanceof JLabel) {
+                JLabel lbl = (JLabel) component;
+
+                // Verificar si el JLabel coincide con los elementos en tus ArrayList
+                if (bricksArray.stream().anyMatch(brick -> brick.getLabel() == lbl)) {
+                    return 2; // Si coincide con un ladrillo
+                } else if (metalBricksArray.stream().anyMatch(metal -> metal.getLabel() == lbl)) {
+                    return 3; // Si coincide con un metalbrick
+                } else if (waterArray.stream().anyMatch(water -> water.getLabel() == lbl)) {
+                    return 5; // Si coincide con agua
+                } else if (eagle.getLabel() == lbl) {
+                    return 1; // Si coincide con el águila
+                }
+            }
+        }
+
+        return -1; // Si no coincide con ninguno de los elementos
+    }
+
+    private boolean checkTankCollision(int posX, int posY){
+        // Verificar si hay colisión en la posición proporcionada
+        int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
+
+        // Verificar si la celda es bloqueante (agua, ladrillo o ladrillo de metal)
+        return cellType == 1 || cellType == 2 || cellType == 3 || cellType == 5;
+    }
+    
+    private boolean checkShellCollision(int posX, int posY){
+        // Verificar si hay colisión en la posición proporcionada
+        int cellType = getCellType(posX, posY); // Obtener el tipo de celda en la posición
+
+        // Verificar si la celda es bloqueante (ladrillo o ladrillo de metal o aguila)
+        return cellType == 1 || cellType == 2 || cellType == 3;        
     }
     
     public void movePlayerTank(int deltaX, int deltaY, ImageIcon icon, EnumDirection dir){ 
@@ -371,61 +394,81 @@ public class GameController implements KeyListener, IObserver{
             int posX = playerTank.getPosX() + deltaX;
             int posY = playerTank.getPosY() + deltaY;
 
-            if (inBounds(posX, posY)){ // Verifies limits of board
-                erasePreviousPosition(playerTank.getPosX(), playerTank.getPosY(), playerTank.getLabel()); // Elimina el JLabel anterior
+            if (inBounds(posX, posY)){ // Verificar los límites del tablero
+                if (!checkTankCollision(posX, posY)) { // Verificar la colisión
+                    erasePreviousPosition(playerTank.getPosX(), playerTank.getPosY(), playerTank.getLabel()); // Eliminar la posición anterior
 
-                playerTank.setPosX(posX);
-                playerTank.setPosY(posY);
+                    playerTank.setPosX(posX);
+                    playerTank.setPosY(posY);
 
-                drawPlayerTank(posX, posY, icon); // Draws the player on board
-                
-                // Actualizar el tiempo del último movimiento
-                playerTank.updateLastMoveTime();
+                    drawPlayerTank(posX, posY, icon); // Dibujar el tanque en el tablero
+
+                    // Actualizar el tiempo del último movimiento
+                    playerTank.updateLastMoveTime();
+                }
             } 
         }
     }
     
-    public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, int posY){
-        ImageIcon icon = null;
-        switch (dir){
-            case UP:
-                icon = new ImageIcon("Images\\bulletUp.png");
-                
-                shell.setPosX(posX-1);
-                shell.setPosY(posY);
-                System.out.println(""+ shell.getPosX() + " " + shell.getPosY());                
-                break;
-            case DOWN:
-                icon = new ImageIcon("Images\\bulletDown.png"); 
-                shell.setPosX(posX+1);
-                shell.setPosY(posY);
-                System.out.println(""+ shell.getPosX() + " " + shell.getPosY()); 
-                break;
-            case LEFT:
-                icon = new ImageIcon("Images\\bulletLeft.png");  
-                shell.setPosX(posX);
-                shell.setPosY(posY-1);
-                System.out.println(""+ shell.getPosX() + " " + shell.getPosY()); 
-                break;
-            case RIGHT:
-                icon = new ImageIcon("Images\\bulletRight.png"); 
-                shell.setPosX(posX);
-                shell.setPosY(posY+1);
-                System.out.println(""+ shell.getPosX() + " " + shell.getPosY()); 
-                break;              
-        }
-        
-        if (inBounds(shell.getPosX(), shell.getPosY())){
-            if(shell.getLabel() != null)
-                erasePreviousPosition(posX, posY, shell.getLabel()); // Elimina el JLabel anterior
-            
-            drawShell(shell, shell.getPosX(), shell.getPosY(), icon);
-        }else{
-            erasePreviousPosition(posX, posY, shell.getLabel());
-            st.setIsRunning(false);
-            System.out.println("Salio");
-        }
+public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, int posY) {
+    
+    ImageIcon icon = null;
+    int nextPosX = posX;
+    int nextPosY = posY;
+
+    switch (dir) {
+        case UP:
+            icon = new ImageIcon("Images\\bulletUp.png");
+            nextPosX = posX - 1;
+            nextPosY = posY;
+            break;
+        case DOWN:
+            icon = new ImageIcon("Images\\bulletDown.png");
+            nextPosX = posX + 1;
+            nextPosY = posY;
+            break;
+        case LEFT:
+            icon = new ImageIcon("Images\\bulletLeft.png");
+            nextPosX = posX;
+            nextPosY = posY - 1;
+            break;
+        case RIGHT:
+            icon = new ImageIcon("Images\\bulletRight.png");
+            nextPosX = posX;
+            nextPosY = posY + 1;
+            break;
     }
+    
+    if (!inBounds(nextPosX, nextPosY)) {
+        erasePreviousPosition(posX, posY, shell.getLabel());
+        st.setIsRunning(false);
+        System.out.println("Salio");
+        return;
+    }
+    
+    // Verificar si hay colisión en la próxima posición
+    if (checkShellCollision(nextPosX, nextPosY)) {
+        erasePreviousPosition(posX, posY, shell.getLabel());
+        st.setIsRunning(false);
+        return;
+    }
+
+    // Mover la bala a la próxima posición
+    shell.setPosX(nextPosX);
+    shell.setPosY(nextPosY);
+
+    if (inBounds(shell.getPosX(), shell.getPosY())) {
+        if (shell.getLabel() != null) {
+            erasePreviousPosition(posX, posY, shell.getLabel());
+        }
+        drawShell(shell, shell.getPosX(), shell.getPosY(), icon);
+    } else {
+        erasePreviousPosition(posX, posY, shell.getLabel());
+        st.setIsRunning(false);
+        System.out.println("Salio");
+    }
+}
+
     
     public void fireShellPlayer(){
         Shell shell = new Shell(playerTank.getPosX(), playerTank.getPosY());
