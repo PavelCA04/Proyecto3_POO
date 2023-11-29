@@ -78,6 +78,7 @@ public class PlayerTank implements Tank, IObservable{
         hp--;
         updateLifes();
     }
+    
     public boolean canFire(){
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - lastMoveTime;//Creo que aqui va lastfiretime

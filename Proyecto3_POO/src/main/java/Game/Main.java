@@ -2,15 +2,8 @@
 
 package Game;
 
-import Prototypes.FastTank;
-import Prototypes.PlayerTank;
-import Prototypes.PowerTank;
-import Prototypes.SimpleTank;
+
 import Prototypes.Tank;
-import Prototypes.TankTank;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.List;
 
 
 public class Main {

@@ -3,6 +3,7 @@ package Threads;
 
 import Game.EnumDirection;
 import Game.GameController;
+import Game.PrototypeFactory;
 import Prototypes.Shell;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
@@ -37,8 +38,8 @@ public class ShellThread extends Thread{
     }
     
     
-    
-    
+
+        
     /////////////
     // Methods //
     /////////////   

@@ -2,7 +2,7 @@
 package Threads;
 
 import Game.GameController;
-import Prototypes.Enemy;
+import Prototypes.EnemyTank;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,8 +14,9 @@ public class EnemiesThread extends Thread{
     // Atributes //
     ///////////////
 
-    Enemy enemy;
+    EnemyTank enemy;
     GameController refController;
+    long moveSpeed;
     boolean isRunning = true;
  
     
@@ -25,7 +26,8 @@ public class EnemiesThread extends Thread{
     // Contructors //
     /////////////////
     
-    public EnemiesThread(){
+    public EnemiesThread(EnemyTank enemyTank){
+        this.enemy = enemyTank;
     }
     
     
@@ -39,10 +41,14 @@ public class EnemiesThread extends Thread{
         while (isRunning){
             try{
                 refController.enemyEvents(enemy.getLabel());
-                sleep(2000);
+                sleep(enemy.getTankVel());
             } catch (InterruptedException ex) {
                 Logger.getLogger(EnemiesThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
     }
 }

@@ -2,14 +2,16 @@
 package Game;
 
 import Bonus.ShieldBonus;
-import Bonus.StarBonus;
-import Bonus.TankBonus;
 import Commands.FireCommand;
 import Commands.MoveDownCommand;
 import Commands.MoveLeftCommand;
 import Commands.MoveRightCommand;
 import Commands.MoveUpCommand;
 import Commands.PauseCommand;
+import static Game.EnumDirection.DOWN;
+import static Game.EnumDirection.LEFT;
+import static Game.EnumDirection.RIGHT;
+import static Game.EnumDirection.UP;
 import Interfaces.ICommand;
 import Prototypes.Brick;
 import Prototypes.Bush;
@@ -17,32 +19,26 @@ import Prototypes.Eagle;
 import Interfaces.IObserver;
 import Interfaces.IStrategy;
 import Prototypes.Enemy;
-import Prototypes.FastTank;
+import Prototypes.EnemyTank;
 import Prototypes.MetalBrick;
 import Prototypes.PlayerTank;
-import Prototypes.PowerTank;
 import Prototypes.Shell;
-import Prototypes.SimpleTank;
-import Prototypes.Tank;
-import Prototypes.TankTank;
+import Prototypes.TankTypeEnum;
 import Prototypes.Water;
 import Threads.EnemiesThread;
-import Threads.PlayerThread;
+import Threads.EnemySpawnThread;
 import Threads.ShellThread;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
-
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -65,18 +61,23 @@ public class GameController implements KeyListener, IObserver{
     private static final int Width = 17; //15
     private static final int Height = 13;
     private JLabel lblPlayerTank;
-    
+    private int currentEnemiesCount = 0;
+    private static final String[] tankTypes = {"SimpleTank", "FastTank", "PowerTank", "TankTank"};
+    private static final int[][] spawnPoints = {{0, 1}, {0, 8}, {0, 15}};
+
     
     
     //////////////////////////////// Threads in game //////////////////////////////////
     private ArrayList<IStrategy> bonusStrategies;
     private ArrayList<EnemiesThread> enemThreadArray; // thread array de enemigos
     private ArrayList<ShellThread> shellThreads; // array de disparos
+    private EnemySpawnThread enemySpawnThread;
     ///////////////////////////////////////////////////////////////////////////////////
     
     
     /////////////////////////////// Entities in game //////////////////////////////////
     private PlayerTank playerTank; 
+    private ArrayList<EnemyTank> enemiesArray;
     private ArrayList<Brick> bricksArray;
     private ArrayList<MetalBrick> metalBricksArray;
     private ArrayList<Bush> bushesArray;
@@ -119,6 +120,7 @@ public class GameController implements KeyListener, IObserver{
         shellThreads = new ArrayList<ShellThread>();
         bonusStrategies = new ArrayList<>();
         
+        enemiesArray = new ArrayList<EnemyTank>();
         bricksArray = new ArrayList<Brick>();
         metalBricksArray = new ArrayList<MetalBrick>();
         bushesArray = new ArrayList<Bush>();
@@ -160,15 +162,16 @@ public class GameController implements KeyListener, IObserver{
         
         playerTank = new PlayerTank("PlayerTank", config,this);
         playerTank.setDir(EnumDirection.UP);
-        SimpleTank simpleTank = new SimpleTank("SimpleTank", config);
-        FastTank fastTank = new FastTank("FastTank", config);
-        PowerTank powerTank = new PowerTank("PowerTank", config);
-        TankTank tankTank = new TankTank("TankTank", config);
+        
+        EnemyTank simpleTank = new EnemyTank(config, TankTypeEnum.SIMPLE, 2, DOWN);
+        EnemyTank fastTank = new EnemyTank(config, TankTypeEnum.FAST, 1, DOWN);
+        EnemyTank powerTank = new EnemyTank(config, TankTypeEnum.POWER, 1, DOWN);
+        EnemyTank tankTank = new EnemyTank(config, TankTypeEnum.TANK, 4, DOWN);
 
-        PrototypeFactory.addPrototype(simpleTank.getId(), simpleTank);
-        PrototypeFactory.addPrototype(fastTank.getId(), fastTank);
-        PrototypeFactory.addPrototype(powerTank.getId(), powerTank);
-        PrototypeFactory.addPrototype(tankTank.getId(), tankTank);
+        PrototypeFactory.addPrototype("SimpleTank", simpleTank);
+        PrototypeFactory.addPrototype("FastTank", fastTank);
+        PrototypeFactory.addPrototype("PowerTank", powerTank);
+        PrototypeFactory.addPrototype("TankTank", tankTank);
         enableNxtLevelBtn();
     }
 
@@ -198,7 +201,6 @@ public class GameController implements KeyListener, IObserver{
                 for (int j = 0; j < levelMap[i].length; j++) {
                     int cellType = levelMap[i][j];
                     if(cellType == 2)
-                        System.out.println(""+ i + " "+ j + " Tipo de bloque: " + cellType);
                     // Colocar los elementos del mapa en el tablero según el tipo de celda
                     switch (cellType) {
                         case 1:
@@ -207,7 +209,6 @@ public class GameController implements KeyListener, IObserver{
                             break;
                         case 2:
                             Brick brick = new Brick(i, j);
-                            System.out.println("\t brickx: " + brick.getPosX() + ", bricky: " + brick.getPosY());
                             placeBrick(i, j, brick);
                             break;
                         case 3:
@@ -230,13 +231,86 @@ public class GameController implements KeyListener, IObserver{
                
         // Spawns the player in game
         ImageIcon image = new ImageIcon("Images\\playerUp.png");
-        drawPlayerTank(10, 8, image);       
+        drawPlayerTank(10, 8, image);
+        startEnemySpawning();
     }
     
     public void nextLevel(){
         int level = this.level;
         PassLevel next = new PassLevel(level);
         next.setVisible(true);
+    }
+
+    public int getCurrentEnemiesCount() {
+        return currentEnemiesCount;
+    }
+    
+    private void startEnemySpawning() {
+        enemySpawnThread = new EnemySpawnThread(this);
+        enemySpawnThread.start();
+    }
+    
+    private String getRandomEnemyType(){
+        Random random = new Random();
+        int index = random.nextInt(tankTypes.length);
+        return tankTypes[index];        
+    }
+    
+    private static int[] getRandomSpawnPosition() {
+        Random random = new Random();
+        int index = random.nextInt(spawnPoints.length);
+        return spawnPoints[index];
+    }
+    
+    public void spawnEnemyTank() {
+        String rand = getRandomEnemyType();
+        EnemyTank enemyTank = (EnemyTank)PrototypeFactory.getPrototype(rand);
+        enemiesArray.add(enemyTank);
+        EnemiesThread et = new EnemiesThread(enemyTank);
+        enemThreadArray.add(et);
+        
+        int[] spawnPosition = getRandomSpawnPosition();
+
+        if (enemyTank != null && spawnPosition != null) {
+            TankTypeEnum enemId = enemyTank.getType();
+            String path = "";
+            switch (enemId) {
+                case SIMPLE:
+                    path = "Images\\simpleDown.png";
+                    break;
+                case FAST:
+                    path = "Images\\fastDown.png";
+                    break;
+                case POWER:
+                    path = "Images\\powerDown.png";
+                    break;
+                case TANK:
+                    path = "Images\\tankDown.png";
+                    break;
+            }
+            currentEnemiesCount++;
+            
+            if (currentEnemiesCount > 19){
+                enemySpawnThread.setIsRunning(false);
+            }
+            
+            enemyTank.setDir(EnumDirection.DOWN);
+            ImageIcon enemyIcon = new ImageIcon(path); // Reemplaza con el icono real
+            drawEnemyTank(spawnPosition[0], spawnPosition[1], enemyIcon, enemyTank);
+        }
+    }
+    
+    public void drawEnemyTank(int posX, int posY, ImageIcon icon, EnemyTank enemy) {
+        JLabel lblEnemyTank = new JLabel(icon);
+        lblEnemyTank.setSize(64, 64);
+        lblEnemyTank.setBackground(Color.BLACK);
+        lblEnemyTank.setForeground(Color.BLACK);
+        enemy.setLabel(lblEnemyTank);
+        enemy.setPosX(posX);
+        enemy.setPosY(posY);
+        System.out.println(""+ posX + " "+ posY);
+        boardCells[posX][posY].add(lblEnemyTank);
+        gameView.pnlGame.revalidate();        
     }
     
     public void drawPlayerTank(int posX, int posY, ImageIcon icon) {
@@ -410,7 +484,7 @@ public class GameController implements KeyListener, IObserver{
         }
         return null;
     }
-
+    
     private Water findWaterAtPosition(int posX, int posY) {
         for (Water water : waterArray) {
             if (water.getPosX() == posX && water.getPosY() == posY) {
@@ -489,66 +563,65 @@ public class GameController implements KeyListener, IObserver{
         }
     }
     
-public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, int posY) {
-    
-    ImageIcon icon = null;
-    int nextPosX = posX;
-    int nextPosY = posY;
+    public void moveShell(ShellThread st, Shell shell, EnumDirection dir, int posX, int posY) {
 
-    switch (dir) {
-        case UP:
-            icon = new ImageIcon("Images\\bulletUp.png");
-            nextPosX = posX - 1;
-            nextPosY = posY;
-            break;
-        case DOWN:
-            icon = new ImageIcon("Images\\bulletDown.png");
-            nextPosX = posX + 1;
-            nextPosY = posY;
-            break;
-        case LEFT:
-            icon = new ImageIcon("Images\\bulletLeft.png");
-            nextPosX = posX;
-            nextPosY = posY - 1;
-            break;
-        case RIGHT:
-            icon = new ImageIcon("Images\\bulletRight.png");
-            nextPosX = posX;
-            nextPosY = posY + 1;
-            break;
-    }
-    
-    if (!inBounds(nextPosX, nextPosY)) {
-        erasePreviousPosition(posX, posY, shell.getLabel());
-        st.setIsRunning(false);
-        System.out.println("Salio");
-        return;
-    }
-    
-    // Verificar si hay colisión en la próxima posición
-    if (checkShellCollision(nextPosX, nextPosY)) {
-        handleCollision(shell, nextPosX, nextPosY);
-        erasePreviousPosition(posX, posY, shell.getLabel());
-        st.setIsRunning(false);
-        return;
-    }
+        ImageIcon icon = null;
+        int nextPosX = posX;
+        int nextPosY = posY;
 
-    // Mover la bala a la próxima posición
-    shell.setPosX(nextPosX);
-    shell.setPosY(nextPosY);
-
-    if (inBounds(shell.getPosX(), shell.getPosY())) {
-        if (shell.getLabel() != null) {
-            erasePreviousPosition(posX, posY, shell.getLabel());
+        switch (dir) {
+            case UP:
+                icon = new ImageIcon("Images\\bulletUp.png");
+                nextPosX = posX - 1;
+                nextPosY = posY;
+                break;
+            case DOWN:
+                icon = new ImageIcon("Images\\bulletDown.png");
+                nextPosX = posX + 1;
+                nextPosY = posY;
+                break;
+            case LEFT:
+                icon = new ImageIcon("Images\\bulletLeft.png");
+                nextPosX = posX;
+                nextPosY = posY - 1;
+                break;
+            case RIGHT:
+                icon = new ImageIcon("Images\\bulletRight.png");
+                nextPosX = posX;
+                nextPosY = posY + 1;
+                break;
         }
-        drawShell(shell, shell.getPosX(), shell.getPosY(), icon);
-    } else {
-        erasePreviousPosition(posX, posY, shell.getLabel());
-        st.setIsRunning(false);
-        System.out.println("Salio");
-    }
-}
 
+        if (!inBounds(nextPosX, nextPosY)) {
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            System.out.println("Salio");
+            return;
+        }
+
+        // Verificar si hay colisión en la próxima posición
+        if (checkShellCollision(nextPosX, nextPosY)) {
+            handleCollision(shell, nextPosX, nextPosY);
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            return;
+        }
+
+        // Mover la bala a la próxima posición
+        shell.setPosX(nextPosX);
+        shell.setPosY(nextPosY);
+
+        if (inBounds(shell.getPosX(), shell.getPosY())) {
+            if (shell.getLabel() != null) {
+                erasePreviousPosition(posX, posY, shell.getLabel());
+            }
+            drawShell(shell, shell.getPosX(), shell.getPosY(), icon);
+        } else {
+            erasePreviousPosition(posX, posY, shell.getLabel());
+            st.setIsRunning(false);
+            System.out.println("Salio");
+        }
+    }
     
     public void fireShellPlayer(){
         Shell shell = new Shell(playerTank.getPosX(), playerTank.getPosY());
